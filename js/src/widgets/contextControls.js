@@ -17,7 +17,7 @@
 
   $.ContextControls.prototype = {
 
-    init: function() {    
+    init: function() {
       this.element = jQuery(this.template({
         showEdit : this.annotationCreationAvailable
       })).appendTo(this.container);
@@ -39,13 +39,19 @@
       this.container.find('.mirador-osd-close').on('click', function() {
         _this.parent.annoState.displayOff();
       });
-      
+
       this.container.find('.mirador-osd-back').on('click', function() {
         _this.element.remove();
         _this.element = jQuery(_this.template()).appendTo(_this.container);
         _this.bindEvents();
       });
-      
+
+      this.container.find('.mirador-add-annotation-window').on('click', function() {
+        console.log('ADD ANNOTATION WINDOW');
+        console.log(_this.parent);
+        jQuery.publish('clicked.addAnnotationWindow', _this.windowId);
+      });
+
       this.container.find('.mirador-osd-edit-mode').on('click', function() {
         if (_this.parent.annoState.current === 'annoOnCreateOff') {
           _this.parent.annoState.createOn();
@@ -57,13 +63,16 @@
         //update annotation list from endpoint
         jQuery.publish('updateAnnotationList.'+_this.windowId);
       });
-      
+
     },
 
     template: Handlebars.compile([
                                  '<div class="mirador-osd-context-controls hud-container">',
                                    '<a class="mirador-osd-close hud-control" role="button" aria-label="Turn off annotations">',
                                    '<i class="fa fa-lg fa-times"></i>',
+                                   '</a>',
+                                   '<a class="mirador-add-annotation-window hud-control" role="button" aria-label="Open an annotation window">',
+                                   '<i class="fa fa-lg fa-comments-o"></i>',
                                    '</a>',
                                    '{{#if showEdit}}',
                                    '<a class="mirador-osd-edit-mode hud-control" role="button" aria-label="Make a new annotation using mouse">',

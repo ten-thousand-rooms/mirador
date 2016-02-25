@@ -384,6 +384,21 @@
           return window.id !== windowId;
         });
       });
+
+      jQuery.subscribe('clicked.addAnnotationWindow', function (event, windowId) {
+        var window = _this.getWindowById(windowId);
+        if (window) {
+          console.log('slot address: ' + window.slotAddress);
+          var slot = window.parent;
+          _this.split(slot, 'r', $.AnnotationWindow);
+          _this.addWindow({
+            windowType: 'annotations',
+            imageWindow: window
+          });
+        } else {
+          console.log('sub[cliced.addAnnotationWindow]: Window could not be found for id = ' + windowId);
+        }
+      });
     },
 
     clearSlot: function(slotId) {
@@ -404,6 +419,11 @@
       // from the workspace windows list after a grid layout change,
       // from the manifests panel in image mode,
       // or from the manifests panel in thumbnail mode.
+      
+      console.log('addWindow windowConfig:');
+      console.dir(windowConfig);
+      var isAnno = (windowConfig.windowType === 'annotations');
+      
       var _this = this,
           newWindow,
           targetSlot;
@@ -415,7 +435,9 @@
         _this.parent.set(oState, false, {parent: 'overlayStates'});
       });
 
-      if (windowConfig.slotAddress) {
+      if (isAnno) {
+        targetSlot = _this.getAvailableSlot();
+      } else if (windowConfig.slotAddress) {
         targetSlot = _this.getSlotFromAddress(windowConfig.slotAddress);
       } else {
         targetSlot = _this.focusedSlot || _this.getAvailableSlot();
@@ -430,7 +452,11 @@
 
         jQuery.publish("windowSlotAdded", {id: windowConfig.id, slotAddress: windowConfig.slotAddress});
 
-        newWindow = new $.Window(windowConfig);
+        if (windowConfig.windowType === 'annotations') {
+          newWindow = new $.AnnotationWindow(windowConfig);
+        } else {
+          newWindow = new $.Window(windowConfig);
+        }
         _this.windows.push(newWindow);
 
         targetSlot.window = newWindow;
@@ -446,6 +472,18 @@
         // using the appropriate saving functions, etc. This obviates the need changing the
         // parent, slotAddress, setting a new ID, and so on.
       }
+    },
+
+    getWindowById: function (windowId) {
+      var windows = jQuery.grep(this.windows, function(window) {
+        return window.id === windowId;
+      });
+      var numWindows = windows.length;
+      if (numWindows > 1) {
+       console.log('Error: more than one (' + numWindows + ') found for id: ' + windowId);
+     }
+      return numWindows == 1 ? windows[0] : null;
     }
+
   };
 }(Mirador));

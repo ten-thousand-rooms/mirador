@@ -95,6 +95,7 @@ module.exports = function(grunt) {
         'css/layout-default-latest.css',
         'css/jquery.qtip.min.css',
         'css/mirador.css',
+        'css/annotation-window.css',
         '!css/mirador-combined.css'
         ],
         dest: 'build/mirador/css/mirador-combined.css'

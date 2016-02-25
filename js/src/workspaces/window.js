@@ -261,6 +261,17 @@
         _this.sidePanelVisibility(visible, '0s');
       });
 
+      jQuery.subscribe('annotation_focused.' + this.id, function(event, selectorStr) {
+        console.log('SUBSC selectorStr: ' + selectorStr);
+        var osd = _this.focusModules.ImageView.osd;
+        var bounds = osd.viewport.getBounds(true);
+        console.log('bound: ' + bounds);
+        selectorValues = selectorStr.match('xywh=(.*)')[1].split(',');
+        var x = parseInt(selectorValues[0], 10);
+        var y = parseInt(selectorValues[1], 10);
+        var p = osd.viewport.imageToViewportCoordinates(x, y);
+        osd.viewport.panTo(p);
+      });
     },
 
     bindAnnotationEvents: function() {
