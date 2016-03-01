@@ -304,6 +304,9 @@
                 
                 jQuery(selector+' a.save').on("click", function(event) {
                   event.preventDefault();
+                  var layerSelect = jQuery(this).parents('.annotation-editor').find('.layer_select');
+                  var layerId = layerSelect.find(':selected').val();
+                  
                   var tagText = jQuery(this).parents('.annotation-editor').find('.tags-editor').val(),
                   resourceText = tinymce.activeEditor.getContent(),
                   tags = [];
@@ -352,7 +355,8 @@
                  "@type" : "oa:Annotation",
                  "motivation" : motivation,
                  "resource" : resource,
-                 "on" : on
+                 "on" : on,
+                 "layerId" : layerId
                 };
                   //save to endpoint
                 jQuery.publish('annotationCreated.'+parent.windowId, [oaAnno, _this.osdOverlay]);

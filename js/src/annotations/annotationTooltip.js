@@ -41,11 +41,23 @@
         }
       }
 
+      var selectContainer = jQuery('<div/>');
+      var select = jQuery('<select/>').addClass('layer_select');
+      selectContainer.append(select);
+      var endpoint = $.viewer.workspace.getWindowById(this.windowId).endpoint;
+      var layers = endpoint.annotationLayers || [];
+      jQuery.each(layers, function (index, value) {
+        var option = jQuery('<option/>').val(value['@id']).text(value.label);
+        select.append(option);
+      });
+
       return this.editorTemplate({content : annoText,
         tags : tags.join(" "),
         id : jQuery.isEmptyObject(annotation) ? "" : annotation['@id'],
-        windowId : _this.windowId
+        windowId : _this.windowId,
+        layerSelect: selectContainer.html()
       });
+      
     },
 
     getViewer: function(annotations) {
@@ -101,7 +113,7 @@
     //when this is being used to edit an existing annotation, insert them into the inputs
     editorTemplate: Handlebars.compile([
                                        '<form id="annotation-editor-{{windowId}}" class="annotation-editor annotation-tooltip" {{#if id}}data-anno-id="{{id}}"{{/if}}>',
-                                       '<select><option>Choose Layer</option></select>',
+                                       '{{{layerSelect}}}',
                                        '<textarea class="text-editor" placeholder="{{t "comments"}}…">{{#if content}}{{content}}{{/if}}</textarea>',
                                        '<input id="tags-editor-{{windowId}}" class="tags-editor" placeholder="{{t "addTagsHere"}}…" {{#if tags}}value="{{tags}}"{{/if}}>',
                                        '<div>',
@@ -113,7 +125,7 @@
                                        '</div>',
                                        '</form>'
     ].join('')),
-
+    
     viewerTemplate: Handlebars.compile([
                                        '<div class="all-annotations" id="annotation-viewer-{{windowId}}">',
                                        '{{#each annotations}}',

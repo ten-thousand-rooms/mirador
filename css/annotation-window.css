@@ -2,6 +2,11 @@
   background-color: #efefef;
 }
 
+.annowin_header {
+  margin: 5px;
+  padding: 5px;
+}
+
 .annowin_header::after {
   content: '';
   display: block;
@@ -16,10 +21,20 @@
   color: red;
 }
 
+.annowin_layer_row {
+  margin: 5px;
+  padding: 5px;
+}
+
+.annowin_list {
+  overflow-y: scroll;
+}
+
 .annowin_anno {
   border: solid 1px #808080;
   padding: 5px;
   margin: 5px;
+  background-color: #fafafa;
 }
 
 .annowin_anno:hover {

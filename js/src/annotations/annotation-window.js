@@ -21,6 +21,8 @@
       this.element = jQuery(this.template(templateData)).appendTo(this.appendTo);
       console.log('this.element: ' + this.element.html());
       
+      var canvas = this.imageWindow.manifest.getCanvases()[0];
+      this.element.find('.title').text(canvas.label);
       this.updateList();
       this.initLayers();
     },
@@ -56,6 +58,8 @@
     },
     
     addAnnotation: function(annotation) {
+      console.log('AnnotationWindow#addAnnotation:');
+      console.dir(annotation);
       var _this = this;
       var content = annotation.resource[0].chars;
       var annoHtml = this.annotationTemplate({content: content});
@@ -91,6 +95,7 @@
     template: Handlebars.compile([
       '<div class="window annowin">',
       '  <div class="annowin_header">',
+      '    <span class="title"></span>',
       '    <a class="annowin_remove_slot"><i class="fa fa-times fa-lg fa-fw"></i></a>',
       '  </div>',
       '  <div class="annowin_layer_row">', 
