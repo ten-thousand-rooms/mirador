@@ -40,22 +40,17 @@
           annoText = annotation.resource.chars;
         }
       }
-
-      var selectContainer = jQuery('<div/>');
-      var select = jQuery('<select/>').addClass('layer_select');
-      selectContainer.append(select);
-      var endpoint = $.viewer.workspace.getWindowById(this.windowId).endpoint;
-      var layers = endpoint.annotationLayers || [];
-      jQuery.each(layers, function (index, value) {
-        var option = jQuery('<option/>').val(value['@id']).text(value.label);
-        select.append(option);
-      });
+      
+      var layerSelectContainer = null;
+      if ($.viewer) { // if viewer has been created
+        layerSelectContainer = this.createLayerSelect();
+      }
 
       return this.editorTemplate({content : annoText,
         tags : tags.join(" "),
         id : jQuery.isEmptyObject(annotation) ? "" : annotation['@id'],
         windowId : _this.windowId,
-        layerSelect: selectContainer.html()
+        layerSelect: layerSelectContainer ? layerSelectContainer.html() : ''
       });
       
     },
@@ -108,6 +103,19 @@
         windowId : _this.windowId});
       return template;
       //return combination of all of them
+    },
+    
+    createLayerSelect: function () {
+      var selectContainer = jQuery('<div/>');
+      var select = jQuery('<select/>').addClass('layer_select');
+      selectContainer.append(select);
+      var endpoint = $.viewer.workspace.getWindowById(this.windowId).endpoint;
+      var layers = endpoint.annotationLayers || [];
+      jQuery.each(layers, function (index, value) {
+        var option = jQuery('<option/>').val(value['@id']).text(value.label);
+        select.append(option);
+      });
+      return selectContainer;
     },
 
     //when this is being used to edit an existing annotation, insert them into the inputs
