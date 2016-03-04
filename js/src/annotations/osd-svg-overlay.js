@@ -627,7 +627,18 @@
               });
 
               jQuery(selector + ' a.save').on("click", function(event) {
+                var button = this;
+                
+                function getLayer() {
+                  var editorElem = jQuery(button).parents('.annotation-editor');
+                  var selectElem = editorElem.find('.layer_select');
+                  return selectElem.val();
+                }
+
                 event.preventDefault();
+                
+                var layer = getLayer();
+
                 var tagText = jQuery(this).parents('.annotation-editor').find('.tags-editor').val(),
                   resourceText = tinymce.activeEditor.getContent(),
                   tags = [];
@@ -682,7 +693,7 @@
                   "on": on
                 };
                 //save to endpoint
-                jQuery.publish('annotationCreated.' + _this.windowId, [oaAnno, shape]);
+                jQuery.publish('annotationCreated.' + _this.windowId, [oaAnno, shape, layer]);
 
                 api.destroy();
                 //reenable viewer tooltips
