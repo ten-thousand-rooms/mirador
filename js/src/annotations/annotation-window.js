@@ -23,6 +23,9 @@
       
       var canvas = this.imageWindow.manifest.getCanvases()[0];
       this.element.find('.title').text(canvas.label);
+      
+      this.layerSelector = this.element.find('.annowin_select_layer');
+      
       this.updateList();
       this.initLayers();
     },
@@ -88,6 +91,11 @@
         var slot = _this.parent;
         var workspace = slot.parent;
         workspace.removeNode(slot);
+      });
+      
+      this.layerSelector.change(function(event) {
+        console.log('change to ' + _this.layerSelector.val());
+        
       });
     },
     

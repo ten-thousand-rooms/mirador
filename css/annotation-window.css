@@ -5,6 +5,7 @@
 .annowin_header {
   margin: 5px;
   padding: 5px;
+  height: 4%;
 }
 
 .annowin_header::after {
@@ -24,10 +25,14 @@
 .annowin_layer_row {
   margin: 5px;
   padding: 5px;
+  height: 4%;
 }
 
 .annowin_list {
   overflow-y: scroll;
+  /*max-height: 200px;*/
+  border: solid 2px #71bcd1;
+  height: 80%;
 }
 
 .annowin_anno {
