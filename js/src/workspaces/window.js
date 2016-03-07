@@ -71,6 +71,7 @@
       }
     }, options);
 
+    console.log('Window manifest: ' + JSON.stringify(this.manifest, null, 2));
     this.init();
     this.bindAnnotationEvents();
 
@@ -740,6 +741,11 @@
             return true;
           });
           jQuery.publish('annotationListLoaded.' + _this.id);
+          
+          // To notify annotation windows of the canvas update.
+          // Cannot reuse the "annotationListLoaded" event because it gets
+          // unsubscribed.
+          jQuery.publish('endpointAnnoListLoaded', [_this.id]);
         });
       }
     },

@@ -390,10 +390,12 @@
         if (window) {
           console.log('slot address: ' + window.slotAddress);
           var slot = window.parent;
-          _this.split(slot, 'r', $.AnnotationWindow);
+          if (!_this.getAvailableSlot()) {
+            _this.split(slot, 'r', $.AnnotationWindow);
+          }
           _this.addWindow({
             windowType: 'annotations',
-            imageWindow: window
+            canvasWindow: window
           });
         } else {
           console.log('sub[cliced.addAnnotationWindow]: Window could not be found for id = ' + windowId);

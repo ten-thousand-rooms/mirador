@@ -5,55 +5,65 @@
 
     jQuery.extend(this, {
       element: null,
-      imageWindow: null
+      canvasWindow: null, // window that contains the canvas for the annotations
     }, options);
 
     this.init();
-    this.bindEvents();
   };
 
   $.AnnotationWindow.prototype = {
     
     init: function () {
-      var _this = this;
       console.log('AnnotationWindow#init this.appendTo: ' + this.appendTo);
-      var templateData = {};
-      this.element = jQuery(this.template(templateData)).appendTo(this.appendTo);
-      console.log('this.element: ' + this.element.html());
+      this.element = jQuery(this.template({})).appendTo(this.appendTo);
+      this.layerSelect = this.element.find('.annowin_select_layer');
+      this.currentLayerID = 'any';
       
-      var canvas = this.imageWindow.manifest.getCanvases()[0];
-      this.element.find('.title').text(canvas.label);
-      
-      this.layerSelector = this.element.find('.annowin_select_layer');
-      
-      this.updateList();
-      this.initLayers();
+      this.reload();
+      this.bindEvents();
     },
     
-    initLayers: function () {
-      var layers = this.imageWindow.endpoint.annotationLayers;
-      console.log('AnnotationWindow#initLayers layers: ' + JSON.stringify(layers, null, 2));
-      var layerSelect = this.element.find('.annowin_select_layer');
-      var option = jQuery('<option/>').val('Any').text('Any');
-      layerSelect.append(option);
+    reload: function () {
+      var canvas = this.getCurrentCanvas();
+      this.element.find('.title').text(canvas.label);
+      this.updateLayers();
+      this.updateList(this.layerSelect.val());
+    },
+    
+    updateLayers: function () {
+      var _this = this;
+      var layers = this.canvasWindow.endpoint.annotationLayers;
+      var layerSelect = this.layerSelect;
+      
+      layerSelect.empty();
+      layers.unshift({ '@id': 'any', label: 'Any' });
       
       jQuery.each(layers, function (index, value) {
-        option = jQuery('<option/>').val(value.label).text(value.label);
+        var layerID = value['@id'];
+        option = jQuery('<option/>').val(layerID).text(value.label);
+        console.log('CUR: ' + this.currentLayerID);
+        console.log('OPT: ' + layerID);
+        if (layerID === _this.currentLayerID) {
+          option.attr('selected', true);
+        }
         layerSelect.append(option);
       });
     },
     
-    updateList: function() {
+    updateList: function(layerId) {
       var _this = this;
-      var annotationsList = this.imageWindow.annotationsList;
+      var annotationsList = this.canvasWindow.annotationsList;
       console.log('annotationsList:');
       console.dir(annotationsList);
       
       this.listElem = this.element.find('.annowin_list');
+      this.listElem.empty();
       
       jQuery.each(annotationsList, function(index, value) {
         try {
-          _this.addAnnotation(value);
+          if (layerId === 'any' || layerId === value.layerId) {
+            _this.addAnnotation(value);
+          }
         } catch (e) {
           console.log('ERROR AnnotationWindow#updateList ' + e);
         }
@@ -61,31 +71,35 @@
     },
     
     addAnnotation: function(annotation) {
-      console.log('AnnotationWindow#addAnnotation:');
-      console.dir(annotation);
+      //console.log('AnnotationWindow#addAnnotation:');
+      //console.dir(annotation);
       var _this = this;
       var content = annotation.resource[0].chars;
       var annoHtml = this.annotationTemplate({content: content});
       var annoElem = jQuery(annoHtml);
       
       annoElem.click(function (event) {
-        var windowId = _this.imageWindow.id;
-        console.log('anno click anno:'); 
-        console.dir(annotation);
+        var windowId = _this.canvasWindow.id;
         var selectorStr = annotation.on.selector.value;
-        console.log('windowId: ' + windowId);
-        console.log('selectorStr: ' + selectorStr);
         jQuery.publish('annotation_focused.' + windowId, selectorStr);
       });
       
       this.listElem.append(annoElem);
     },
     
+    getCurrentCanvas: function() {
+      var window = this.canvasWindow;
+      var id = window.currentCanvasID;
+      var canvases = window.manifest.getCanvases();
+      return canvases.filter(function (canvas) {
+        return canvas['@id'] === id;
+      })[0];
+    },
+    
     bindEvents: function () {
       var _this = this;
       
       jQuery('.annowin_remove_slot').click(function(event) {
-        console.log('click');
         event.stopPropagation();
         event.preventDefault();
         var slot = _this.parent;
@@ -93,9 +107,15 @@
         workspace.removeNode(slot);
       });
       
-      this.layerSelector.change(function(event) {
-        console.log('change to ' + _this.layerSelector.val());
-        
+      // When a new layer is selected
+      this.layerSelect.change(function(event) {
+        console.log('LAYER SELECTED: ' + _this.layerSelect.val());
+        _this.currentLayerID = _this.layerSelect.val();
+        _this.updateList(_this.currentLayerID);
+      });
+      
+      jQuery.subscribe('endpointAnnoListLoaded', function(event, windowID) {
+        _this.reload();
       });
     },
     
