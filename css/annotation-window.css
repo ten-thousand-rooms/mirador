@@ -1,5 +1,7 @@
 .annowin {
   background-color: #efefef;
+  display: flex;
+  flex-direction: column;
 }
 
 .annowin_header {
@@ -30,9 +32,8 @@
 
 .annowin_list {
   overflow-y: scroll;
-  /*max-height: 200px;*/
   border: solid 2px #71bcd1;
-  height: 80%;
+  /*height: 80%;*/
 }
 
 .annowin_anno {

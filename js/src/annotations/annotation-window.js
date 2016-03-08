@@ -1,8 +1,6 @@
 (function($) {
 
   $.AnnotationWindow = function(options) {
-    console.log('AnnotationWindow constructor');
-
     jQuery.extend(this, {
       element: null,
       canvasWindow: null, // window that contains the canvas for the annotations
