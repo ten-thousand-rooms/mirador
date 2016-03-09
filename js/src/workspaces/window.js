@@ -71,10 +71,8 @@
       }
     }, options);
 
-    console.log('Window manifest: ' + JSON.stringify(this.manifest, null, 2));
     this.init();
     this.bindAnnotationEvents();
-
   };
 
   $.Window.prototype = {
@@ -262,15 +260,14 @@
         _this.sidePanelVisibility(visible, '0s');
       });
 
-      jQuery.subscribe('annotation_focused.' + this.id, function(event, selectorStr) {
-        console.log('SUBSC selectorStr: ' + selectorStr);
+      jQuery.subscribe('annotation_focused.' + this.id, function(event, annotation) {
+        console.log('Window#bindEvents annotation_focused annotation: ' + annotation);
         var osd = _this.focusModules.ImageView.osd;
-        var bounds = osd.viewport.getBounds(true);
-        console.log('bound: ' + bounds);
-        selectorValues = selectorStr.match('xywh=(.*)')[1].split(',');
-        var x = parseInt(selectorValues[0], 10);
-        var y = parseInt(selectorValues[1], 10);
-        var p = osd.viewport.imageToViewportCoordinates(x, y);
+        var drawTool = _this.focusModules.ImageView.annotationsLayer.drawTool;
+        var shapes = drawTool.getShapesForAnnotation(annotation);
+        var bounds = $.annoUtil.getCombinedBounds(shapes);
+        var p = osd.viewport.imageToViewportCoordinates(bounds.x, bounds.y);
+        $.annoUtil.highlightShapes(shapes);
         osd.viewport.panTo(p);
       });
     },

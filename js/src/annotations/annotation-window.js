@@ -78,8 +78,7 @@
       
       annoElem.click(function (event) {
         var windowId = _this.canvasWindow.id;
-        var selectorStr = annotation.on.selector.value;
-        jQuery.publish('annotation_focused.' + windowId, selectorStr);
+        jQuery.publish('annotation_focused.' + windowId, annotation);
       });
       
       this.listElem.append(annoElem);

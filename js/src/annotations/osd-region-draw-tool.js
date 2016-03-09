@@ -451,6 +451,20 @@
         var oaAnno = _this.getAnnoFromRegion(id)[0];
         _this.unFreezeQtip(api, oaAnno, annoTooltip);
       });
+    },
+    
+    // Get paper.js shapes which are associated with the annotation.
+    getShapesForAnnotation: function(annotation) {
+      var out_shapes = [];
+      jQuery.each(this.annotationsToShapesMap, function(key, shapes) {
+        jQuery.each(shapes, function (index, shape) {
+          if (shape.data.annotation['@id'] === annotation['@id']) {
+            out_shapes.push(shape);
+          }
+        });
+      });
+      return out_shapes;
     }
+    
   };
 }(Mirador));
