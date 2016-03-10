@@ -39,8 +39,6 @@
       jQuery.each(layers, function (index, value) {
         var layerID = value['@id'];
         option = jQuery('<option/>').val(layerID).text(value.label);
-        console.log('CUR: ' + this.currentLayerID);
-        console.log('OPT: ' + layerID);
         if (layerID === _this.currentLayerID) {
           option.attr('selected', true);
         }

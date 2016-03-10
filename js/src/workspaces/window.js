@@ -267,7 +267,14 @@
         var viewport = osd.viewport;
         var shapes = imageView.annotationsLayer.drawTool.getShapesForAnnotation(annotation);
         var shapeBounds = $.annoUtil.getCombinedBounds(shapes);
-        var p = new OpenSeadragon.Point(shapeBounds.x / viewport.containerSize.x, shapeBounds.y / viewport.containerSize.y);
+        var containerWidth = viewport.containerSize.x;
+        var containerHeight = viewport.containerSize.y;
+        var annoWidth = shapeBounds.width / containerWidth;
+        var annoHeight = shapeBounds.height / containerHeight;
+        var x = shapeBounds.x / containerWidth + annoWidth / 2;
+        var y = shapeBounds.y / containerHeight + annoHeight / 2;
+        
+        var p = new OpenSeadragon.Point(x, y);
 
         $.annoUtil.highlightShapes(shapes);
         console.log('Pan to: ' + p.x + ', ' + p.y);
@@ -287,6 +294,11 @@
           //update overlay so it can be a part of the annotationList rendering
           jQuery(osdOverlay).removeClass('osd-select-rectangle').addClass('annotation').attr('id', annoID);
           jQuery.publish(('annotationListLoaded.' + _this.id));
+
+          // To notify annotation windows of the canvas update.
+          // Cannot reuse the "annotationListLoaded" event because it gets
+          // unsubscribed.
+          jQuery.publish('endpointAnnoListLoaded', [_this.id]);
         },
         function() {
           //provide useful feedback to user
@@ -306,6 +318,11 @@
             }
           });
           jQuery.publish(('annotationListLoaded.' + _this.id));
+          
+          // To notify annotation windows of the canvas update.
+          // Cannot reuse the "annotationListLoaded" event because it gets
+          // unsubscribed.
+          jQuery.publish('endpointAnnoListLoaded', [_this.id]);
         },
         function() {
           console.log("There was an error updating this annotation");
@@ -319,6 +336,11 @@
           _this.annotationsList = jQuery.grep(_this.annotationsList, function(e){ return e['@id'] !== annoId; });
           jQuery.publish(('annotationListLoaded.' + _this.id));
           jQuery.publish(('removeOverlay.' + _this.id), annoId);
+          
+          // To notify annotation windows of the canvas update.
+          // Cannot reuse the "annotationListLoaded" event because it gets
+          // unsubscribed.
+          jQuery.publish('endpointAnnoListLoaded', [_this.id]);
         },
         function() {
           // console.log("There was an error deleting this annotation");
