@@ -262,12 +262,15 @@
 
       jQuery.subscribe('annotation_focused.' + this.id, function(event, annotation) {
         console.log('Window#bindEvents annotation_focused annotation: ' + annotation);
-        var osd = _this.focusModules.ImageView.osd;
-        var drawTool = _this.focusModules.ImageView.annotationsLayer.drawTool;
-        var shapes = drawTool.getShapesForAnnotation(annotation);
-        var bounds = $.annoUtil.getCombinedBounds(shapes);
-        var p = osd.viewport.imageToViewportCoordinates(bounds.x, bounds.y);
+        var imageView = _this.focusModules.ImageView;
+        var osd = imageView.osd;
+        var viewport = osd.viewport;
+        var shapes = imageView.annotationsLayer.drawTool.getShapesForAnnotation(annotation);
+        var shapeBounds = $.annoUtil.getCombinedBounds(shapes);
+        var p = new OpenSeadragon.Point(shapeBounds.x / viewport.containerSize.x, shapeBounds.y / viewport.containerSize.y);
+
         $.annoUtil.highlightShapes(shapes);
+        console.log('Pan to: ' + p.x + ', ' + p.y);
         osd.viewport.panTo(p);
       });
     },
