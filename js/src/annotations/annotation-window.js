@@ -34,7 +34,7 @@
       var layerSelect = this.layerSelect;
       
       layerSelect.empty();
-      layers.unshift({ '@id': 'any', label: 'Any' });
+      layers = [{ '@id': 'any', label: 'Any' }].concat(layers);
       
       jQuery.each(layers, function (index, value) {
         var layerID = value['@id'];
