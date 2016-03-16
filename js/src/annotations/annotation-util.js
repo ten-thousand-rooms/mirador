@@ -11,16 +11,18 @@
         } else {
           bounds = shape.strokeBounds;
         }
-        console.log('bounds: ' + bounds);
       });
       return bounds;
     },
     
-    highlightShapes: function (shapes) {
-      jQuery.each(shapes, function (index, shape) {
-        shape.strokeColor = 'orange';
-        shape.strokeWidth = 2;
-      });
+    highlightShape: function (shape) {
+      shape.strokeColor = 'orange';
+      shape.strokeWidth = 10;
+    },
+    
+    deHighlightShape: function (shape) {
+      shape.strokeColor = 'blue';
+      shape.strokeWidth = 1;
     }
     
   };

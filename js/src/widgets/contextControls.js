@@ -195,12 +195,6 @@
         _this.bindEvents();
       });
 
-      this.container.find('.mirador-add-annotation-window').on('click', function() {
-        console.log('ADD ANNOTATION WINDOW');
-        console.log(_this.parent);
-        jQuery.publish('clicked.addAnnotationWindow', _this.windowId);
-      });
-
       this.container.find('.mirador-osd-edit-mode').on('click', function() {
         if (_this.parent.annoState.current === 'annoOnCreateOff') {
           _this.parent.annoState.createOn();
@@ -223,9 +217,6 @@
                                    '{{#if showEdit}}',
                                    '<a class="mirador-osd-edit-mode hud-control" role="button" aria-label="Make a new annotation using mouse">',
                                    '<i class="fa fa-lg fa-edit"></i>',
-                                   '</a>',
-                                   '<a class="mirador-add-annotation-window hud-control" role="button" aria-label="Open an annotation window">',
-                                   '<i class="fa fa-lg fa-comments-o"></i>',
                                    '</a>',
                                    '<a class="hud-control draw-tool" style="color:#abcdef;">',
                                    '|',

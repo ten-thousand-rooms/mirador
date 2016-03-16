@@ -260,25 +260,11 @@
         _this.sidePanelVisibility(visible, '0s');
       });
 
+      // XXX seong
       jQuery.subscribe('annotation_focused.' + this.id, function(event, annotation) {
         console.log('Window#bindEvents annotation_focused annotation: ' + annotation);
         var imageView = _this.focusModules.ImageView;
-        var osd = imageView.osd;
-        var viewport = osd.viewport;
-        var shapes = imageView.annotationsLayer.drawTool.getShapesForAnnotation(annotation);
-        var shapeBounds = $.annoUtil.getCombinedBounds(shapes);
-        var containerWidth = viewport.containerSize.x;
-        var containerHeight = viewport.containerSize.y;
-        var annoWidth = shapeBounds.width / containerWidth;
-        var annoHeight = shapeBounds.height / containerHeight;
-        var x = shapeBounds.x / containerWidth + annoWidth / 2;
-        var y = shapeBounds.y / containerHeight + annoHeight / 2;
-        
-        var p = new OpenSeadragon.Point(x, y);
-
-        $.annoUtil.highlightShapes(shapes);
-        console.log('Pan to: ' + p.x + ', ' + p.y);
-        osd.viewport.panTo(p);
+        imageView.panToAnnotation(annotation);
       });
     },
 
@@ -839,6 +825,12 @@
     this.element.find('.add-slot-above').on('click', function() {
       $.viewer.workspace.splitUp(_this.parent);
     });
+    
+    this.element.find('.add-annotation-window').on('click', function() {
+      console.log('ADD ANNOTATION WINDOW');
+      jQuery.publish('clicked.addAnnotationWindow', _this.id);
+    });
+    
     },
 
     // template should be based on workspace type
@@ -846,6 +838,9 @@
                                  '<div class="window">',
                                  '<div class="manifest-info">',
                                  '<div class="window-manifest-navigation">',
+                                 '<a class="mirador-btn add-annotation-window" role="button" aria-label="Add an annotation window" title="Add an annotation window">',
+                                 '<i class="fa fa-lg fa-comments-o"></i>',
+                                 '</a>',
                                  '<a href="javascript:;" class="mirador-btn mirador-icon-image-view" role="button" aria-label="Change Image Mode"><i class="fa fa-photo fa-lg fa-fw"></i>',
                                  '<ul class="dropdown image-list">',
                                  '{{#if ImageView}}',

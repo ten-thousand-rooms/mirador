@@ -262,7 +262,27 @@
       if (prev >= 0) {
         this.parent.setCurrentCanvasID(this.imagesList[prev]['@id']);
       }
+    },
+    
+    // XXX seong
+    // Highlight the boundaries for the currently chosen annotation
+    // and pan to show the annotated area.
+    panToAnnotation: function(annotation) {
+      var viewport = this.osd.viewport;
+      var shapes = this.annotationsLayer.drawTool.getShapesForAnnotation(annotation);
+      var shapeBounds = $.annoUtil.getCombinedBounds(shapes); // in image coordinates
+      var annoWidth = shapeBounds.width;
+      var annoHeight = shapeBounds.height;
+      var x = shapeBounds.x + annoWidth / 2;
+      var y = shapeBounds.y + annoHeight / 2;
+      var p = new OpenSeadragon.Point(x, y);
+      
+      p = viewport.imageToViewportCoordinates(shapeBounds.x, shapeBounds.y);
+      
+      console.log('Pan to: ' + p.x + ', ' + p.y);
+      viewport.panTo(p);
     }
+    
   };
 
 }(Mirador));
