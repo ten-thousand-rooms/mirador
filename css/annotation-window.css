@@ -30,6 +30,10 @@
   height: 4%;
 }
 
+.annowin_create_anno {
+  float: right;
+}
+
 .annowin_list {
   overflow-y: scroll;
   border: solid 2px #71bcd1;

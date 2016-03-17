@@ -1,3 +1,5 @@
+// XXX seong
+
 (function($) {
 
   $.AnnotationWindow = function(options) {
@@ -16,7 +18,7 @@
       this.element = jQuery(this.template({})).appendTo(this.appendTo);
       this.layerSelect = this.element.find('.annowin_select_layer');
       this.currentLayerID = 'any';
-      
+      this.editorRow = this.element.find('.annowin_creator'); // placeholder for annotation editor for creation
       this.reload();
       this.bindEvents();
     },
@@ -91,8 +93,20 @@
       })[0];
     },
     
-    bindEvents: function () {
+
+
+    bindEvents: function() {
       var _this = this;
+      
+      jQuery('.annowin_create_anno').click(function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        var editor = new $.AnnotationEditor({
+          parent: _this.editorRow,
+          mode: 'create'
+        });
+        editor.show();
+      });
       
       jQuery('.annowin_remove_slot').click(function(event) {
         event.stopPropagation();
@@ -123,7 +137,9 @@
       '  </div>',
       '  <div class="annowin_layer_row">', 
       '    Layer: <select class="annowin_select_layer"></select>',
+      '    <a class="annowin_create_anno"><i class="fa fa-edit fa-lg fa-fw"></i></a>',
       '  </div>',
+      '  <div class="annowin_creator"></div>',
       '  <div class="annowin_list">',
       '  </div>',
       '</div>'

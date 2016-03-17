@@ -1,3 +1,5 @@
+// XXX seong
+
 (function($) {
   
   $.annoUtil = {
