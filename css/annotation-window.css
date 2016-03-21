@@ -1,3 +1,13 @@
+.to_right {
+  float: right;
+}
+
+canvas#lines_overlay {
+  position: absolute;
+  z-index: 100;
+  pointer-events: none;
+}
+
 .annowin {
   background-color: #efefef;
   display: flex;
@@ -49,4 +59,10 @@
 
 .annowin_anno:hover {
   border-color: orange;
+}
+
+.annotation_editor {
+  background-color: white;
+  border: solid 3px #0072c4;
+  padding: 5px;
 }

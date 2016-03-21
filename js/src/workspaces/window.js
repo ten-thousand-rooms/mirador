@@ -215,7 +215,7 @@
       var _this = this;
 
       //this event should trigger from layout
-      jQuery(window).resize($.debounce(function(){
+      jQuery(window).resize($.debounce(function(event){
         if (_this.focusModules.ScrollView) {
           var containerHeight = _this.element.find('.view-container').height();
           var triggerShow = false;
@@ -224,6 +224,7 @@
           }
           _this.focusModules.ScrollView.reloadImages(Math.floor(containerHeight * _this.scrollImageRatio), triggerShow);
         }
+        jQuery.publish('resizeMirador', [event]);
       }, 300));
 
       jQuery.subscribe('bottomPanelSet.' + _this.id, function(event, visible) {

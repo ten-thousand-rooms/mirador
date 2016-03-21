@@ -15,6 +15,7 @@
     
     init: function () {
       console.log('AnnotationWindow#init this.appendTo: ' + this.appendTo);
+      this.endpoint = this.canvasWindow.endpoint;
       this.element = jQuery(this.template({})).appendTo(this.appendTo);
       this.layerSelect = this.element.find('.annowin_select_layer');
       this.currentLayerID = 'any';
@@ -32,7 +33,7 @@
     
     updateLayers: function () {
       var _this = this;
-      var layers = this.canvasWindow.endpoint.annotationLayers;
+      var layers = this.endpoint.annotationLayers;
       var layerSelect = this.layerSelect;
       
       layerSelect.empty();
@@ -76,9 +77,14 @@
       var annoHtml = this.annotationTemplate({content: content});
       var annoElem = jQuery(annoHtml);
       
-      annoElem.click(function (event) {
+      annoElem.click(function(event) {
         var windowId = _this.canvasWindow.id;
-        jQuery.publish('annotation_focused.' + windowId, annotation);
+        
+        if ($.getLinesOverlay().isActive()) {
+          jQuery.publish('target_annotation_selected', annotation);
+        } else {
+          jQuery.publish('annotation_focused.' + windowId, annotation);
+        }
       });
       
       this.listElem.append(annoElem);
@@ -98,17 +104,19 @@
     bindEvents: function() {
       var _this = this;
       
-      jQuery('.annowin_create_anno').click(function(event) {
+      this.element.find('.annowin_create_anno').click(function(event) {
         event.stopPropagation();
         event.preventDefault();
         var editor = new $.AnnotationEditor({
           parent: _this.editorRow,
-          mode: 'create'
+          canvasWindow: _this.canvasWindow,
+          mode: 'create',
+          endpoint: _this.endpoint
         });
         editor.show();
       });
       
-      jQuery('.annowin_remove_slot').click(function(event) {
+      this.element.find('.annowin_remove_slot').click(function(event) {
         event.stopPropagation();
         event.preventDefault();
         var slot = _this.parent;

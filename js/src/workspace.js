@@ -353,9 +353,12 @@
         _this.calculateLayout();
       });
 
+      /* XXX seong
+       redundant? window.js now publishes resizeMirador on resize
       jQuery.subscribe('resizeMirador', function(event) {
         _this.calculateLayout();
       });
+      */
 
       jQuery.subscribe('manifestQueued', function(event, manifestPromise) {
         // Trawl windowObjects preemptively for slotAddresses and
