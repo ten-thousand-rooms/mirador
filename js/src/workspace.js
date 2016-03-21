@@ -457,7 +457,7 @@
 
         jQuery.publish("windowSlotAdded", {id: windowConfig.id, slotAddress: windowConfig.slotAddress});
 
-        if (windowConfig.windowType === 'annotations') {
+        if (windowConfig.windowType === 'annotations') { // XXX seong
           newWindow = new $.AnnotationWindow(windowConfig);
         } else {
           newWindow = new $.Window(windowConfig);

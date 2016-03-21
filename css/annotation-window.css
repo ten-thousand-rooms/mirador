@@ -15,7 +15,7 @@ canvas#lines_overlay {
 }
 
 .annowin_header {
-  margin: 5px;
+  margin: 0;
   padding: 5px;
   height: 4%;
 }
@@ -24,6 +24,15 @@ canvas#lines_overlay {
   content: '';
   display: block;
   clear: both;
+}
+
+.mirador-viewer .mirador-icon-window-menu.annowin_window_menu {
+  margin: 0 10px 0 0;
+  font-size: 0.8rem;
+}
+
+.annowin_window_menu .dropdown li {
+  font-size: 0.8rem;
 }
 
 .annowin_remove_slot {

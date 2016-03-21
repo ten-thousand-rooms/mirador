@@ -5,6 +5,7 @@
   $.AnnotationWindow = function(options) {
     jQuery.extend(this, {
       element: null,
+      parent: null, // slot
       canvasWindow: null, // window that contains the canvas for the annotations
     }, options);
 
@@ -104,6 +105,30 @@
     bindEvents: function() {
       var _this = this;
       
+      this.element.find('.mirador-icon-window-menu').on('mouseenter',
+        function() {
+          _this.element.find('.slot-controls').stop().slideFadeToggle(300);
+      }).on('mouseleave',
+        function() {
+          _this.element.find('.slot-controls').stop().slideFadeToggle(300);
+      });
+      
+      this.element.find('.add-slot-right').on('click', function() {
+        $.viewer.workspace.splitRight(_this.parent);
+      });
+
+      this.element.find('.add-slot-left').on('click', function() {
+        $.viewer.workspace.splitLeft(_this.parent);
+      });
+
+      this.element.find('.add-slot-below').on('click', function() {
+        $.viewer.workspace.splitDown(_this.parent);
+      });
+
+      this.element.find('.add-slot-above').on('click', function() {
+        $.viewer.workspace.splitUp(_this.parent);
+      });
+      
       this.element.find('.annowin_create_anno').click(function(event) {
         event.stopPropagation();
         event.preventDefault();
@@ -140,6 +165,14 @@
     template: Handlebars.compile([
       '<div class="window annowin">',
       '  <div class="annowin_header">',
+      '    <a href="javascript:;" class="mirador-btn mirador-icon-window-menu annowin_window_menu" title="{{t "changeLayout"}}"><i class="fa fa-table fa-lg fa-fw"></i>',
+      '      <ul class="dropdown slot-controls">',
+      '        <li class="add-slot-right"><i class="fa fa-caret-square-o-right fa-lg fa-fw"></i> {{t "addSlotRight"}}</li>',
+      '        <li class="add-slot-left"><i class="fa fa-caret-square-o-left fa-lg fa-fw"></i> {{t "addSlotLeft"}}</li>',
+      '        <li class="add-slot-above"><i class="fa fa-caret-square-o-up fa-lg fa-fw"></i> {{t "addSlotAbove"}}</li>',
+      '        <li class="add-slot-below"><i class="fa fa-caret-square-o-down fa-lg fa-fw"></i> {{t "addSlotBelow"}}</li>',
+      '      </ul>',
+      '    </a>',
       '    <span class="title"></span>',
       '    <a class="annowin_remove_slot"><i class="fa fa-times fa-lg fa-fw"></i></a>',
       '  </div>',
