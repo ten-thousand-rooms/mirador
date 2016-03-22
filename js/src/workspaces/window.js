@@ -344,10 +344,10 @@
 
     bindAnnotationEvents: function() {
       var _this = this;
-      jQuery.subscribe('annotationCreated.'+_this.id, function(event, oaAnno, osdOverlay, layer) {
+      jQuery.subscribe('annotationCreated.'+_this.id, function(event, oaAnno, osdOverlay) {
         var annoID;
         //first function is success callback, second is error callback
-        _this.endpoint.create(oaAnno, layer, function(data) {
+        _this.endpoint.create(oaAnno, function(data) {
           //the success callback expects the OA annotation be returned
           annoID = String(data['@id']); //just in case it returns a number
           _this.annotationsList.push(data);

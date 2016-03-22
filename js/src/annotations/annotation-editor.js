@@ -76,7 +76,8 @@
       if (this.mode == 'create') {
         var layerID = this.layerSelect.val();
         var annotation = this.createAnnotation(this.targetAnnotation, layerID, content);
-        jQuery.publish('annotationCreated.' + this.canvasWindow.id, [annotation, null, layerID]);
+        //jQuery.publish('annotationCreated.' + this.canvasWindow.id, [annotation, null, layerID]);
+        jQuery.publish('annotationCreated.' + this.canvasWindow.id, [annotation, null]);
       } else {
         this.annotation.resource[0].chars = content;
         jQuery.publish('annotationUpdated.' + this.canvasWindow.id, [this.annotation]);
@@ -120,7 +121,8 @@
         on: {
           '@type': 'oa:Annotation',
           full: targetAnnotation['@id']
-        }
+        },
+        layer: layerID
       };
       console.log('AnnotationEditor#createAnnotation anno: ' + JSON.stringify(annotation, null, 2));
       console.log('AnnotationEditor#createAnnotation layer: ' + layerID);
