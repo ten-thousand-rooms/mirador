@@ -50,7 +50,7 @@
       });
     },
     
-    updateList: function(layerId) {
+    updateList: function(layerID) {
       var _this = this;
       var annotationsList = this.canvasWindow.annotationsList;
       console.log('annotationsList:');
@@ -61,7 +61,7 @@
       
       jQuery.each(annotationsList, function(index, value) {
         try {
-          if (layerId === 'any' || layerId === value.layerId) {
+          if (layerID === 'any' || layerID === value.layerID) {
             _this.addAnnotation(value);
           }
         } catch (e) {
@@ -88,6 +88,34 @@
         }
       });
       
+      annoElem.find('.annowin_edit').click(function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        var editor = new $.AnnotationEditor({
+          parent: annoElem,
+          canvasWindow: _this.canvasWindow,
+          mode: 'update',
+          endpoint: _this.endpoint,
+          annotation: annotation,
+          closedCallback: function () {
+            annoElem.find('.normal_view').show();
+          }
+        });
+        
+        annoElem.find('.normal_view').hide();
+        editor.show();
+      });
+      
+      annoElem.find('.annowin_delete').click(function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        if (window.confirm('Do you really want to delete the annotation?')) {
+          jQuery.publish('annotationDeleted.' + _this.canvasWindow.id, [annotation['@id']]);
+        }
+      });
+      
       this.listElem.append(annoElem);
     },
     
@@ -99,8 +127,6 @@
         return canvas['@id'] === id;
       })[0];
     },
-    
-
 
     bindEvents: function() {
       var _this = this;
@@ -151,7 +177,7 @@
       
       // When a new layer is selected
       this.layerSelect.change(function(event) {
-        console.log('LAYER SELECTED: ' + _this.layerSelect.val());
+        console.log('AnnotationWindow layer selected: ' + _this.layerSelect.val());
         _this.currentLayerID = _this.layerSelect.val();
         _this.updateList(_this.currentLayerID);
       });
@@ -187,7 +213,15 @@
     ].join('')),
     
     annotationTemplate: Handlebars.compile([
-      '<div class="annowin_anno">{{{content}}}</div>'
+      '<div class="annowin_anno">',
+      '  <div class="normal_view">',
+      '    <div class="to_right">',
+      '      <a class="annowin_edit"><i class="fa fa-edit"></i></a>',
+      '      <a class="annowin_delete"><i class="fa fa-times"></i></a>',
+      '    </div>',
+      '    <div class="content">{{{content}}}</div>',
+      '  </div>',
+      '</div>'
     ].join(''))
 
   };

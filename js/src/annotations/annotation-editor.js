@@ -6,9 +6,11 @@
     jQuery.extend(this, {
       id: null,
       parent: null,
-      canvasWindow: null,
+      canvasWindow: null, // reference window that contains the canvas
       mode: null, // "create" or "update"
-      endpoint: null
+      endpoint: null,
+      annotation: null,
+      closedCallback: null
     }, options);
 
     this.init();
@@ -20,22 +22,26 @@
     init: function() {
       this.id = this.id || $.genUUID();
       
-      this.element = jQuery(this.template({})).attr('id', this.id);
-      this.parent.append(this.element);
-      
+      this.element = jQuery(this.template({})).attr('id', this.id)
+        .appendTo(this.parent);
+      var header = this.element.find('.header');
+      var title = header.find('.title');
+      this.linkToTarget = header.find('.link_to_target');
       this.textArea = this.element.find('textarea');
-      
-      this.layerSelectContainer = this.element.find('.layer_select');
-      this.layerSelect = new $.LayerSelect({
-        parent: this.layerSelectContainer,
-        endpoint: this.endpoint,
-        changeCallback: function() {
-          console.log('CHANGE');
-        }
-      });
-      
-      this.setHeader();
-      
+    
+      if (this.mode === 'create') {
+        title.text('Create Annotation');
+        this.layerSelectContainer = this.element.find('.layer_select');
+        this.layerSelect = new $.LayerSelect({
+          parent: this.layerSelectContainer,
+          endpoint: this.endpoint
+        });
+      } else { // update
+        title.text('');
+        this.textArea.val(this.annotation.resource[0].chars);
+        this.element.find('.layer_select').css('left', -1000);
+      }
+
       this.textAreaID = '#' + this.id + ' textarea';
       
       tinymce.init({
@@ -49,24 +55,6 @@
       this.targetAnnotation = null;
       
       this.bindEvents();
-    },
-    
-    setHeader: function() {
-      var header = this.element.find('.header');
-      var title = header.find('.title');
-      if (this.mode === 'create') {
-        title.text('Create Annotation');
-        header.show();
-      } else {
-        header.hide();
-      }
-      this.linkToTarget = header.find('.link_to_target');
-      console.log('LINK: ' + this.linkToTarget);
-      this.linkToTarget.click(function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        $.getLinesOverlay().startLine(event.pageX, event.pageY);
-      });
     },
     
     show: function() {
@@ -83,9 +71,15 @@
     
     save: function() {
       var content = tinymce.activeEditor.getContent();
-      var layerID = this.layerSelect.value();
-      var annotation = this.createAnnotation(this.targetAnnotation, layerID, content);
-      jQuery.publish('annotationCreated.' + this.canvasWindow.id, [annotation, null, layerID]);
+
+      if (this.mode == 'create') {
+        var layerID = this.layerSelect.val();
+        var annotation = this.createAnnotation(this.targetAnnotation, layerID, content);
+        jQuery.publish('annotationCreated.' + this.canvasWindow.id, [annotation, null, layerID]);
+      } else {
+        this.annotation.resource[0].chars = content;
+        jQuery.publish('annotationUpdated.' + this.canvasWindow.id, [this.annotation]);
+      }
     },
     
     validate: function () {
@@ -93,10 +87,12 @@
       console.dir(this.targetAnnotation);
 
       var msg = '';
-      if (!this.targetAnnotation) {
-        msg += 'Target annotation is missing.\n';
+      if (this.mode === 'create') {
+        if (!this.targetAnnotation) {
+          msg += 'Target annotation is missing.\n';
+        }
       }
-      if (!this.layerSelect.value()) {
+      if (this.mode === 'create' && !this.layerSelect.val()) {
         msg += 'Layer is not selected.\n';
       }
       if (tinymce.activeEditor.getContent().trim() === '') {
@@ -121,8 +117,8 @@
           chars: content
         }],
         on: {
-          '@type': 'oa:SpecificResource',
-          'full': targetAnnotation['@id']
+          '@type': 'oa:Annotation',
+          full: targetAnnotation['@id']
         }
       };
       console.log('AnnotationEditor#createAnnotation anno: ' + JSON.stringify(annotation, null, 2));
@@ -133,6 +129,12 @@
     bindEvents: function() {
       var _this = this;
       
+      this.linkToTarget.click(function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $.getLinesOverlay().startLine(event.pageX, event.pageY);
+      });
+      
       this.element.find('.save').click(function() {
         if (_this.validate()) {
           _this.save();
@@ -141,6 +143,9 @@
       
       this.element.find('.cancel').click(function() {
         _this.destroy();
+        if (typeof _this.closedCallback === 'function') {
+          _this.closedCallback();
+        }
       });
       
       jQuery.subscribe('target_annotation_selected', function(event, annotation) {

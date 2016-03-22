@@ -26,7 +26,7 @@
       shape.strokeColor = 'blue';
       shape.strokeWidth = 1;
     }
-    
+
   };
   
 })(Mirador);

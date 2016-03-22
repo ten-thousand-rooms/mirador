@@ -38,10 +38,13 @@
       });
     },
     
-    value: function() {
-      return this.select.val();
+    val: function(value) {
+      if (value === undefined) {
+        return this.select.val();
+      } else {
+        this.select.val(value);
+      }
     }
-
   };
   
 })(Mirador);
