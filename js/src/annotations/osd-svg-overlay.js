@@ -32,7 +32,6 @@
       availableExternalCommentsPanel: availableExternalCommentsPanel,
       fixedShapeSize: 10,
       hitOptions: {
-        fill: true,
         stroke: true,
         segments: true,
         tolerance: 5
