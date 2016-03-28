@@ -71,7 +71,17 @@ canvas#lines_overlay {
 }
 
 .annowin_anno:hover {
+  border-color: #71bcd1;
+}
+
+.annowin_focused {
+  border-color: #71bcd1;
+  border-width: 2px;
+}
+
+.annowin_targeted {
   border-color: orange;
+  border-width: 2px;
 }
 
 .annotation_editor {

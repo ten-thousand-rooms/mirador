@@ -78,12 +78,15 @@
       var annoHtml = this.annotationTemplate({content: content});
       var annoElem = jQuery(annoHtml);
       
+      annoElem.data('annotationID', annotation['@id']);
+      
       annoElem.click(function(event) {
         var windowId = _this.canvasWindow.id;
         
         if ($.getLinesOverlay().isActive()) {
           jQuery.publish('target_annotation_selected', annotation);
         } else {
+          _this.highlightFocusedAnnotation(annotation);
           jQuery.publish('annotation_focused.' + windowId, annotation);
         }
       });
@@ -126,6 +129,30 @@
       return canvases.filter(function (canvas) {
         return canvas['@id'] === id;
       })[0];
+    },
+    
+    highlightFocusedAnnotation: function(annotation) {
+      this.listElem.find('.annowin_anno').each(function(index, value) {
+        var annoElem = jQuery(value);
+        var annoID = annoElem.data('annotationID');
+        if (annoID === annotation['@id']) {
+          annoElem.addClass('annowin_focused');
+        } else {
+          annoElem.removeClass('annowin_focused');
+        }
+      });
+    },
+    
+    highlightTargetedAnnotation: function(targetAnnotationID) {
+      this.listElem.find('.annowin_anno').each(function(index, value) {
+        var annoElem = jQuery(value);
+        var annoID = annoElem.data('annotationID');
+        if (annoID === targetAnnotationID) {
+          annoElem.addClass('annowin_targeted');
+        } else {
+          annoElem.removeClass('annowin_targeted');
+        }
+      });
     },
 
     bindEvents: function() {
@@ -184,6 +211,14 @@
       
       jQuery.subscribe('endpointAnnoListLoaded', function(event, windowID) {
         _this.reload();
+      });
+      
+      jQuery.subscribe('annotation_focused.' + this.canvasWindow.id, function(event, annotation) {
+        console.log('Annotation window received annotation_focused event');
+        if (annotation.on['@type'] == 'oa:Annotation') {
+          var targetID = annotation.on.full;
+          _this.highlightTargetedAnnotation(targetID);
+        }
       });
     },
     

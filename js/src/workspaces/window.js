@@ -265,7 +265,11 @@
       jQuery.subscribe('annotation_focused.' + this.id, function(event, annotation) {
         console.log('Window#bindEvents annotation_focused annotation: ' + annotation);
         var imageView = _this.focusModules.ImageView;
-        imageView.panToAnnotation(annotation);
+        var annoState = imageView.hud.annoState.current;
+        
+        if (annoState === 'annoOnCreateOff' || annoState === 'annoOnCreateOn') {
+          imageView.panToAnnotation(annotation);
+        }
       });
     },
 
