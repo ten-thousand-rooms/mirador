@@ -7,15 +7,17 @@
     return this.svgOverlayTools;
   };
 
-  OpenSeadragon.Viewer.prototype.svgOverlay = function(windowObj) {
-    return new $.Overlay(this, windowObj, $.viewer.drawingToolsSettings, $.viewer.availableAnnotationDrawingTools);
+  OpenSeadragon.Viewer.prototype.svgOverlay = function(osdViewerId, windowId, state) {
+    return new $.Overlay(this, osdViewerId, windowId, state);
   };
 
-  $.Overlay = function(viewer, windowObj, drawingToolsSettings, availableAnnotationDrawingTools) {
+  $.Overlay = function(viewer, osdViewerId, windowId, state) {
+    var drawingToolsSettings = state.getStateProperty('drawingToolsSettings'), 
+    availableAnnotationDrawingTools = state.getStateProperty('availableAnnotationDrawingTools');
     jQuery.extend(this, {
       disabled: true,
-      window: windowObj,
-      windowId: windowObj.windowId,
+      osdViewerId: osdViewerId,
+      windowId: windowId,
       commentPanel: null,
       mode: '', // Possible modes: 'create', 'translate', 'deform', 'edit' and '' as default.
       draftPaths: [],
@@ -50,6 +52,7 @@
     this.viewer.canvas.appendChild(this.canvas);
 
     var _this = this;
+    this.state = state;
     this.viewer.addHandler('animation', function() {
       _this.resize();
     });
@@ -63,33 +66,33 @@
       _this.resize();
     });
     jQuery.subscribe('toggleDrawingTool.' + _this.windowId, function(event, tool) {
-      jQuery('#' + _this.window.viewer.id).parent().find('.hud-container').find('.draw-tool').css('opacity', '');
+      jQuery('#' + osdViewerId).parent().find('.hud-container').find('.draw-tool').css('opacity', '');
       if (_this.disabled) {
         jQuery('.qtip' + _this.windowId).qtip('hide');
         return;
       }
-      jQuery('#' + _this.window.viewer.id).parents(".window").find(".qtip-viewer").hide();
+      jQuery('#' + osdViewerId).parents(".window").find(".qtip-viewer").hide();
       _this.currentTool = null;
       for (var i = 0; i < _this.tools.length; i++) {
         if (_this.tools[i].logoClass == tool) {
           _this.currentTool = _this.tools[i];
-          jQuery('#' + _this.window.viewer.id).parent().find('.hud-container').find('.material-icons:contains(\'' + tool + '\')').parent('.draw-tool').css('opacity', '1');
+          jQuery('#' + osdViewerId).parent().find('.hud-container').find('.material-icons:contains(\'' + tool + '\')').parent('.draw-tool').css('opacity', '1');
         }
       }
     });
     jQuery.subscribe('toggleDefaultDrawingTool.' + _this.windowId, function(event) {
-      jQuery('#' + _this.window.viewer.id).parent().find('.hud-container').find('.draw-tool').css('opacity', '');
+      jQuery('#' + osdViewerId).parent().find('.hud-container').find('.draw-tool').css('opacity', '');
       if (_this.disabled) {
         jQuery('.qtip' + _this.windowId).qtip('hide');
         return;
       }
-      jQuery('#' + _this.window.viewer.id).parents(".window").find(".qtip-viewer").hide();
+      jQuery('#' + osdViewerId).parents(".window").find(".qtip-viewer").hide();
       _this.currentTool = null;
       for (var i = 0; i < _this.availableAnnotationDrawingTools.length; i++) {
         for (var j = 0; j < _this.tools.length; j++) {
           if (_this.availableAnnotationDrawingTools[i] == _this.tools[j].name) {
             _this.currentTool = _this.tools[j];
-            jQuery('#' + _this.window.viewer.id).parent().find('.hud-container').find('.material-icons:contains(\'' + _this.tools[j].logoClass + '\')').parent('.draw-tool').css('opacity', '1');
+            jQuery('#' + osdViewerId).parent().find('.hud-container').find('.material-icons:contains(\'' + _this.tools[j].logoClass + '\')').parent('.draw-tool').css('opacity', '1');
             break;
           }
         }
@@ -417,9 +420,9 @@
       var strokeColor = this.strokeColor;
       var fillColor = this.fillColor;
       var fillColorAlpha = this.fillColorAlpha;
-      this.strokeColor = $.viewer.drawingToolsSettings.fillColor;
-      this.fillColor = $.viewer.drawingToolsSettings.fillColor;
-      this.fillColorAlpha = $.viewer.drawingToolsSettings.fillColorAlpha;
+      this.strokeColor = this.state.getStateProperty('drawingToolsSettings').strokeColor;
+      this.fillColor = this.state.getStateProperty('drawingToolsSettings').fillColor;
+      this.fillColorAlpha = this.state.getStateProperty('drawingToolsSettings').fillColorAlpha;
       this.mode = 'create';
       this.path = rect.createShape(initialPoint, this);
       var eventData = {
@@ -711,7 +714,7 @@
                 motivation.push("oa:commenting");
                 on = {
                   "@type": "oa:SpecificResource",
-                  "full": _this.window.parent.canvasID,
+                  "full": _this.state.getWindowObjectById(_this.windowId).canvasID,
                   "selector": {
                     "@type": "oa:SvgSelector",
                     "value": svg

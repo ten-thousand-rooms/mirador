@@ -102,13 +102,19 @@
         _this.currentCanvasID = _this.imagesList[0]['@id'];
       }
 
-      this.annoEndpointAvailable = !jQuery.isEmptyObject($.viewer.annotationEndpoint);
+      this.annoEndpointAvailable = !jQuery.isEmptyObject(_this.state.getStateProperty('annotationEndpoint'));
       if (!this.annotationLayerAvailable) {
         this.annotationCreationAvailable = false;
         this.annoEndpointAvailable = false;
         this.annotationState = 'annoOff';
       }
       _this.getAnnotations();
+
+      //for use by SidePanel, which needs to know if the current view can have the annotations tab
+      jQuery.publish(('windowUpdated'), {
+        id: _this.id,
+        annotationsAvailable: this.annotationsAvailable
+      });
 
       //check config
       if (typeof this.bottomPanelAvailable !== 'undefined' && !this.bottomPanelAvailable) {
@@ -145,12 +151,14 @@
         });
       }
       _this.element = jQuery(this.template(templateData)).appendTo(_this.appendTo);
+      jQuery.publish('WINDOW_ELEMENT_UPDATED', {windowId: _this.id, element: _this.element});
 
       //clear any existing objects
       _this.clearViews();
       _this.clearPanelsAndOverlay();
 
-      this.bindEvents();
+      //window needs to listen for any events before it finishes building out the widgets, in case they publish anything
+      this.listenForActions();
 
       //attach view and toggle view, which triggers the attachment of panels or overlays
       _this.bindNavigation();
@@ -171,9 +179,11 @@
           break;
       }
 
-      if ($.viewer.workspace.slots.length <= 1) {
+      if (_this.state.getSlots().length <= 1) {
         _this.element.find('.remove-object-option').hide();
       }
+
+      this.bindEvents();
 
       if (this.imagesList.length === 1) {
         this.bottomPanelVisibility(false);
@@ -211,9 +221,10 @@
       }
     },
 
-    bindEvents: function() {
+    listenForActions: function() {
       var _this = this;
 
+      // XXX seong - Rashimi removed this resize callback - and put it in bindEvents().
       //this event should trigger from layout
       jQuery(window).resize($.debounce(function(event){
         if (_this.focusModules.ScrollView) {
@@ -236,12 +247,12 @@
         }
       });
 
-      jQuery.subscribe('layoutChanged', function(event, layoutRoot) {
-        if ($.viewer.workspace.slots.length <= 1) {
-          _this.element.find('.remove-object-option').hide();
-        } else {
-          _this.element.find('.remove-object-option').show();
-        }
+      jQuery.subscribe('HIDE_REMOVE_OBJECT.' + _this.id, function(event) {
+        _this.element.find('.remove-object-option').hide();
+      });
+
+      jQuery.subscribe('SHOW_REMOVE_OBJECT.' + _this.id, function(event) {
+        _this.element.find('.remove-object-option').show();
       });
 
       jQuery.subscribe('sidePanelStateUpdated.' + this.id, function(event, state) {
@@ -254,7 +265,7 @@
             _this.element.find('.fa-caret-down').switchClass('fa-caret-down', 'fa-list');
             _this.element.find('.view-container').addClass('maximised');
         }
-    });
+      });
 
       // TODO: temporary logic to minimize side panel if only tab is toc and toc is empty
       jQuery.subscribe('sidePanelVisibilityByTab.' + this.id, function(event, visible) {
@@ -271,6 +282,64 @@
           imageView.panToAnnotation(annotation);
         }
       });
+
+      jQuery.subscribe('SET_CURRENT_CANVAS_ID.' + this.id, function(event, canvasID) {
+        _this.setCurrentCanvasID(canvasID);
+      });
+
+      jQuery.subscribe('REMOVE_CLASS.' + this.id, function(event, className) {
+        _this.element.find('.view-container').removeClass(className);
+      });
+
+      jQuery.subscribe('ADD_CLASS.' + this.id, function(event, className) {
+        _this.element.find('.view-container').addClass(className);
+      });
+
+      jQuery.subscribe('UPDATE_FOCUS_IMAGES.' + this.id, function(event, images) {
+        _this.updateFocusImages(images.array); 
+      });
+
+      jQuery.subscribe('HIDE_ICON_TOC.' + this.id, function(event) {
+        _this.element.find('.mirador-icon-toc').hide();
+      });
+
+      jQuery.subscribe('SHOW_ICON_TOC.' + this.id, function(event) {
+        _this.element.find('.mirador-icon-toc').show();
+      });
+
+      jQuery.subscribe('SET_BOTTOM_PANEL_VISIBILITY.' + this.id, function(event, visibility) {
+        if (typeof visibility !== 'undefined' && visibility !== null) {
+          _this.bottomPanelVisibility(visibility);
+        } else {
+          _this.bottomPanelVisibility(_this.bottomPanelVisible);
+        }
+      });
+
+      jQuery.subscribe('TOGGLE_BOTTOM_PANEL_VISIBILITY.' + this.id, function(event) {
+        var visible = !_this.bottomPanelVisible;
+        _this.bottomPanelVisibility(visible);
+      });
+
+      jQuery.subscribe('REQUEST_OSD_FULL_SCREEN.' + this.id, function(event) {
+        OpenSeadragon.requestFullScreen(_this.element[0]);
+      });
+    },
+
+    bindEvents: function() {
+      var _this = this;
+
+      //this event should trigger from layout
+      jQuery(window).resize($.debounce(function(){
+        if (_this.focusModules.ScrollView) {
+          var containerHeight = _this.element.find('.view-container').height();
+          var triggerShow = false;
+          if (_this.currentFocus === "ScrollView") {
+            triggerShow = true;
+          }
+          _this.focusModules.ScrollView.reloadImages(Math.floor(containerHeight * _this.scrollImageRatio), triggerShow);
+        }
+      }, 300));
+
     },
 
     bindAnnotationEvents: function() {
@@ -284,12 +353,14 @@
           _this.annotationsList.push(data);
           //update overlay so it can be a part of the annotationList rendering
           jQuery(osdOverlay).removeClass('osd-select-rectangle').addClass('annotation').attr('id', annoID);
-          jQuery.publish(('annotationListLoaded.' + _this.id));
 
+          // XXX seong
           // To notify annotation windows of the canvas update.
           // Cannot reuse the "annotationListLoaded" event because it gets
           // unsubscribed.
           jQuery.publish('endpointAnnoListLoaded', [_this.id]);
+
+          jQuery.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
         },
         function() {
           //provide useful feedback to user
@@ -308,12 +379,14 @@
               return false;
             }
           });
-          jQuery.publish(('annotationListLoaded.' + _this.id));
-          
+
+          // XXX seong
           // To notify annotation windows of the canvas update.
           // Cannot reuse the "annotationListLoaded" event because it gets
           // unsubscribed.
           jQuery.publish('endpointAnnoListLoaded', [_this.id]);
+
+          jQuery.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
         },
         function() {
           console.log("There was an error updating this annotation");
@@ -325,13 +398,14 @@
         //first function is success callback, second is error callback
         _this.endpoint.deleteAnnotation(annoId, function() {
           _this.annotationsList = jQuery.grep(_this.annotationsList, function(e){ return e['@id'] !== annoId; });
-          jQuery.publish(('annotationListLoaded.' + _this.id));
           jQuery.publish(('removeOverlay.' + _this.id), annoId);
           
           // To notify annotation windows of the canvas update.
           // Cannot reuse the "annotationListLoaded" event because it gets
           // unsubscribed.
           jQuery.publish('endpointAnnoListLoaded', [_this.id]);
+
+          jQuery.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
         },
         function() {
           // console.log("There was an error deleting this annotation");
@@ -370,7 +444,8 @@
             _this[panelType] = new $[view]({
               manifest: _this.manifest,
               appendTo: _this.element.find('.'+panelType),
-              parent: _this,
+              state:  _this.state,
+              windowId: _this.id,
               panel: true,
               canvasID: _this.currentCanvasID,
               imagesList: _this.imagesList,
@@ -401,7 +476,8 @@
       });
 
       //update panels with current image
-      if (this.bottomPanel) { this.bottomPanel.updateFocusImages(this.focusImages); }
+      //console.log(this.focusImages);
+      //if (this.bottomPanel) { this.bottomPanel.updateFocusImages(this.focusImages); }
     },
 
     updateSidePanel: function() {
@@ -420,7 +496,8 @@
 
       if (this.sidePanel === null) {
         this.sidePanel = new $.SidePanel({
-              parent: _this,
+              windowId: _this.id,
+              state: _this.state,
               appendTo: _this.element.find('.sidePanel'),
               manifest: _this.manifest,
               canvasID: _this.currentCanvasID,
@@ -562,7 +639,8 @@
         this.focusModules.ThumbnailsView = new $.ThumbnailsView({
           manifest: this.manifest,
           appendTo: this.element.find('.view-container'),
-          parent: this,
+          state:  this.state,
+          windowId: this.id,
           canvasID: this.currentCanvasID,
           imagesList: this.imagesList
         });
@@ -579,8 +657,8 @@
         this.focusModules.ImageView = new $.ImageView({
           manifest: this.manifest,
           appendTo: this.element.find('.view-container'),
-          parent: this,
           windowId: this.id,
+          state:  this.state,
           canvasID: canvasID,
           imagesList: this.imagesList,
           osdOptions: this.focusOptions,
@@ -604,8 +682,8 @@
         this.focusModules.BookView = new $.BookView({
           manifest: this.manifest,
           appendTo: this.element.find('.view-container'),
-          parent: this,
           windowId: this.id,
+          state:  this.state,
           canvasID: canvasID,
           imagesList: this.imagesList,
           osdOptions: this.focusOptions,
@@ -626,7 +704,8 @@
         this.focusModules.ScrollView = new $.ScrollView({
           manifest: this.manifest,
           appendTo: this.element.find('.view-container'),
-          parent: this,
+          state:  this.state,
+          windowId: this.id,
           canvasID: this.currentCanvasID,
           imagesList: this.imagesList,
           thumbInfo: {thumbsHeight: Math.floor(containerHeight * this.scrollImageRatio), listingCssCls: 'scroll-listing-thumbs', thumbnailCls: 'scroll-view'}
@@ -640,6 +719,7 @@
 
     updateFocusImages: function(imageList) {
       this.focusImages = imageList;
+      if (this.bottomPanel) { this.bottomPanel.updateFocusImages(this.focusImages); }
     },
 
     setCurrentCanvasID: function(canvasID) {
@@ -722,16 +802,16 @@
             //indicate this is a manifest annotation - which affects the UI
             value.endpoint = "manifest";
           });
-          jQuery.publish('annotationListLoaded.' + _this.id);
+          jQuery.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
         });
       }
 
       // next check endpoint
       if (this.annoEndpointAvailable) {
         var dfd = jQuery.Deferred(),
-        module = $.viewer.annotationEndpoint.module,
-        options = $.viewer.annotationEndpoint.options || {}; //grab anything from the config that should be passed directly to the endpoint
-        options.name = $.viewer.annotationEndpoint.name;
+        module = _this.state.getStateProperty('annotationEndpoint').module,
+        options = _this.state.getStateProperty('annotationEndpoint').options || {}; //grab anything from the config that should be passed directly to the endpoint
+        options.name = _this.state.getStateProperty('annotationEndpoint').name;
         // One annotation endpoint per window, the endpoint
         // is a property of the instance.
         if ( _this.endpoint && _this.endpoint !== null ) {
@@ -739,7 +819,7 @@
         } else {
           options.dfd = dfd;
           options.windowID = _this.id;
-          options.parent = _this;
+          options.imagesList = _this.imagesList;
           _this.endpoint = new $[module](options);
         }
         _this.endpoint.search({ "uri" : _this.currentCanvasID});
@@ -753,12 +833,13 @@
             }
             return true;
           });
-          jQuery.publish('annotationListLoaded.' + _this.id);
           
           // To notify annotation windows of the canvas update.
           // Cannot reuse the "annotationListLoaded" event because it gets
           // unsubscribed.
           jQuery.publish('endpointAnnoListLoaded', [_this.id]);
+
+          jQuery.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
         });
       }
     },
@@ -767,75 +848,75 @@
     bindNavigation: function() {
       var _this = this;
 
-    this.element.find('.mirador-icon-image-view').on('mouseenter',
+      this.element.find('.mirador-icon-image-view').on('mouseenter',
+        function() {
+        _this.element.find('.image-list').stop().slideFadeToggle(300);
+      }).on('mouseleave',
       function() {
-      _this.element.find('.image-list').stop().slideFadeToggle(300);
-    }).on('mouseleave',
-    function() {
-      _this.element.find('.image-list').stop().slideFadeToggle(300);
-    });
+        _this.element.find('.image-list').stop().slideFadeToggle(300);
+      });
 
-    this.element.find('.mirador-icon-window-menu').on('mouseenter',
+      this.element.find('.mirador-icon-window-menu').on('mouseenter',
+        function() {
+        _this.element.find('.slot-controls').stop().slideFadeToggle(300);
+      }).on('mouseleave',
       function() {
-      _this.element.find('.slot-controls').stop().slideFadeToggle(300);
-    }).on('mouseleave',
-    function() {
-      _this.element.find('.slot-controls').stop().slideFadeToggle(300);
-    });
+        _this.element.find('.slot-controls').stop().slideFadeToggle(300);
+      });
 
-    this.element.find('.single-image-option').on('click', function() {
-      _this.toggleImageView(_this.currentCanvasID);
-    });
+      this.element.find('.single-image-option').on('click', function() {
+        _this.toggleImageView(_this.currentCanvasID);
+      });
 
-    this.element.find('.book-option').on('click', function() {
-      _this.toggleBookView(_this.currentCanvasID);
-    });
+      this.element.find('.book-option').on('click', function() {
+        _this.toggleBookView(_this.currentCanvasID);
+      });
 
-    this.element.find('.scroll-option').on('click', function() {
-      _this.toggleScrollView(_this.currentCanvasID);
-    });
+      this.element.find('.scroll-option').on('click', function() {
+        _this.toggleScrollView(_this.currentCanvasID);
+      });
 
-    this.element.find('.thumbnails-option').on('click', function() {
-      _this.toggleThumbnails(_this.currentCanvasID);
-    });
+      this.element.find('.thumbnails-option').on('click', function() {
+        _this.toggleThumbnails(_this.currentCanvasID);
+      });
 
-    this.element.find('.mirador-icon-metadata-view').on('click', function() {
-      _this.toggleMetadataOverlay(_this.currentFocus);
-    });
+      this.element.find('.mirador-icon-metadata-view').on('click', function() {
+        _this.toggleMetadataOverlay(_this.currentFocus);
+      });
 
-    this.element.find('.mirador-icon-toc').on('click', function() {
-      _this.sidePanelVisibility(!_this.sidePanelVisible, '0.3s');
-    });
+      this.element.find('.mirador-icon-toc').on('click', function() {
+        _this.sidePanelVisibility(!_this.sidePanelVisible, '0.3s');
+      });
 
-    this.element.find('.new-object-option').on('click', function() {
-      _this.parent.addItem();
-    });
+      this.element.find('.new-object-option').on('click', function() {
+        jQuery.publish('ADD_ITEM_FROM_WINDOW', _this.id);
+      });
 
-    this.element.find('.remove-object-option').on('click', function() {
-      $.viewer.workspace.removeNode(_this.parent);
-    });
+      this.element.find('.remove-object-option').on('click', function() {
+        jQuery.publish('REMOVE_SLOT_FROM_WINDOW', _this.id);
+      });
 
-    this.element.find('.add-slot-right').on('click', function() {
-      $.viewer.workspace.splitRight(_this.parent);
-    });
+      this.element.find('.add-slot-right').on('click', function() {
+        jQuery.publish('SPLIT_RIGHT_FROM_WINDOW', _this.id);
+      });
 
-    this.element.find('.add-slot-left').on('click', function() {
-      $.viewer.workspace.splitLeft(_this.parent);
-    });
+      this.element.find('.add-slot-left').on('click', function() {
+        jQuery.publish('SPLIT_LEFT_FROM_WINDOW', _this.id);
+      });
 
-    this.element.find('.add-slot-below').on('click', function() {
-      $.viewer.workspace.splitDown(_this.parent);
-    });
+      this.element.find('.add-slot-below').on('click', function() {
+        jQuery.publish('SPLIT_DOWN_FROM_WINDOW', _this.id);
+      });
 
-    this.element.find('.add-slot-above').on('click', function() {
-      $.viewer.workspace.splitUp(_this.parent);
-    });
-    
-    this.element.find('.add-annotation-window').on('click', function() {
-      console.log('ADD ANNOTATION WINDOW');
-      jQuery.publish('clicked.addAnnotationWindow', _this.id);
-    });
-    
+      this.element.find('.add-slot-above').on('click', function() {
+        jQuery.publish('SPLIT_UP_FROM_WINDOW', _this.id);
+      });
+
+      // XXX seong
+      this.element.find('.add-annotation-window').on('click', function() {
+        console.log('ADD ANNOTATION WINDOW');
+        jQuery.publish('clicked.addAnnotationWindow', _this.id);
+      });
     },
 
     // template should be based on workspace type

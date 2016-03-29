@@ -16,7 +16,7 @@
   $.OsdRegionDrawTool.prototype = {
 
     init: function() {
-      this.svgOverlay = this.osdViewer.svgOverlay(this.parent);
+      this.svgOverlay = this.osdViewer.svgOverlay(this.osdViewer.id, this.windowId, this.state);
       this.svgOverlay.show();
       this.svgOverlay.disable();
     },
@@ -51,7 +51,7 @@
                   if (!window.confirm("Do you want to delete this shape and annotation?")) {
                     return false;
                   }
-                  jQuery.publish('annotationDeleted.' + _this.parent.windowId, [oaAnno['@id']]);
+                  jQuery.publish('annotationDeleted.' + _this.windowId, [oaAnno['@id']]);
                   this.svgOverlay.removeFocus();
                   return true;
                 } else {
@@ -68,7 +68,7 @@
                     };
                   }
                   oaAnno.on.selector.value = _this.svgOverlay.getSVGString(shapeArray);
-                  jQuery.publish('annotationUpdated.' + _this.parent.windowId, [oaAnno]);
+                  jQuery.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
                   this.svgOverlay.removeFocus();
                   return true;
                 }
@@ -110,7 +110,7 @@
         }
       }
       for (var j = 0; j < oaAnnos.length; j++) {
-        jQuery.publish('annotationUpdated.' + _this.parent.windowId, [oaAnnos[j]]);
+        jQuery.publish('annotationUpdated.' + _this.windowId, [oaAnnos[j]]);
       }
       this.svgOverlay.restoreEditedShapes();
     },
@@ -149,8 +149,10 @@
         return deferred;
       });
       jQuery.when.apply(jQuery, deferreds).done(function() {
-        jQuery.publish('overlaysRendered.' + _this.parent.windowId);
+        jQuery.publish('overlaysRendered.' + _this.windowId);
       });
+
+      var windowElement = _this.state.getWindowElement(_this.windowId);
 
       this.tooltips = jQuery(this.osdViewer.element).qtip({
         overwrite: false,
@@ -165,8 +167,8 @@
             mouse: false,
             method: 'shift'
           },
-          container: _this.parent.parent.parent.element,
-          viewport: _this.parent.parent.parent.element
+          container: windowElement,
+          viewport: windowElement
         },
         style: {
           classes: 'qtip-bootstrap qtip-viewer',
@@ -200,9 +202,9 @@
 
     setTooltipContent: function(api, annotations) {
       var _this = this;
-      var annoTooltip = new $.AnnotationTooltip({"windowId": _this.parent.windowId});
+      var annoTooltip = new $.AnnotationTooltip({"windowId": _this.windowId});
       api.set({'content.text': annoTooltip.getViewer(annotations)});
-      jQuery.publish('tooltipViewerSet.' + _this.parent.windowId);
+      jQuery.publish('tooltipViewerSet.' + _this.windowId);
     },
 
     showTooltipsFromMousePosition: function(event, location, absoluteLocation) {
@@ -279,34 +281,34 @@
     bindEvents: function() {
       var _this = this;
 
-      jQuery.subscribe('refreshOverlay.' + _this.parent.windowId, function(event) {
+      jQuery.subscribe('refreshOverlay.' + _this.windowId, function(event) {
         _this.svgOverlay.restoreEditedShapes();
         _this.svgOverlay.deselectAll();
         _this.svgOverlay.mode = '';
         _this.render();
       });
-      jQuery.subscribe('deleteShape.' + _this.parent.windowId, function(event) {
+      jQuery.subscribe('deleteShape.' + _this.windowId, function(event) {
         _this.deleteShape();
       });
-      jQuery.subscribe('updateEditedShape.' + _this.parent.windowId, function(event) {
+      jQuery.subscribe('updateEditedShape.' + _this.windowId, function(event) {
         _this.saveEditedShape();
       });
 
-      jQuery.subscribe('updateTooltips.' + _this.parent.windowId, function(event, location, absoluteLocation) {
+      jQuery.subscribe('updateTooltips.' + _this.windowId, function(event, location, absoluteLocation) {
         if (!_this.inEditOrCreateMode) {
           _this.showTooltipsFromMousePosition(event, location, absoluteLocation);
         }
       });
 
-      jQuery.subscribe('removeTooltips.' + _this.parent.windowId, function() {
+      jQuery.subscribe('removeTooltips.' + _this.windowId, function() {
         jQuery(_this.osdViewer.element).qtip('destroy', true);
       });
 
-      jQuery.subscribe('disableTooltips.' + _this.parent.windowId, function() {
+      jQuery.subscribe('disableTooltips.' + _this.windowId, function() {
         _this.inEditOrCreateMode = true;
       });
 
-      jQuery.subscribe('enableTooltips.' + _this.parent.windowId, function() {
+      jQuery.subscribe('enableTooltips.' + _this.windowId, function() {
         _this.inEditOrCreateMode = false;
         _this.svgOverlay.restoreDraftShapes();
       });
@@ -329,7 +331,7 @@
         'content.text': annoTooltip.getEditor(oaAnno),
         'hide.event': false
       });
-      jQuery.publish('annotationEditorAvailable.' + this.parent.windowId);
+      jQuery.publish('annotationEditorAvailable.' + this.windowId);
       //add rich text editor
       tinymce.init({
         selector: 'form.annotation-tooltip textarea',
@@ -358,8 +360,8 @@
 
     removeAnnotationEvents: function(tooltipevent, api) {
       var _this = this;
-      var editorSelector = '#annotation-editor-' + _this.parent.windowId;
-      var viewerSelector = '#annotation-viewer-' + _this.parent.windowId;
+      var editorSelector = '#annotation-editor-' + _this.windowId;
+      var viewerSelector = '#annotation-viewer-' + _this.windowId;
       jQuery(viewerSelector + ' a.delete').off("click");
       jQuery(viewerSelector + ' a.edit').off("click");
       jQuery(editorSelector + ' a.save').off("click");
@@ -368,8 +370,8 @@
 
     annotationEvents: function(tooltipevent, api) {
       var _this = this;
-      var annoTooltip = new $.AnnotationTooltip({"windowId": _this.parent.windowId});
-      var selector = '#annotation-viewer-' + _this.parent.windowId;
+      var annoTooltip = new $.AnnotationTooltip({"windowId": _this.windowId});
+      var selector = '#annotation-viewer-' + _this.windowId;
       jQuery(selector + ' a.delete').on("click", function(event) {
         event.preventDefault();
         if (!window.confirm("Do you want to delete this annotation?")) {
@@ -377,7 +379,7 @@
         }
         var display = jQuery(this).parents('.annotation-display');
         var id = display.attr('data-anno-id');
-        jQuery.publish('annotationDeleted.' + _this.parent.windowId, [id]);
+        jQuery.publish('annotationDeleted.' + _this.windowId, [id]);
         api.hide();
         display.remove();
       });
@@ -394,8 +396,8 @@
 
     annotationSaveEvent: function(event, api) {
       var _this = this;
-      var annoTooltip = new $.AnnotationTooltip({"windowId": _this.parent.windowId});
-      var selector = '#annotation-editor-' + _this.parent.windowId;
+      var annoTooltip = new $.AnnotationTooltip({"windowId": _this.windowId});
+      var selector = '#annotation-editor-' + _this.windowId;
 
       jQuery(selector).on("submit", function(event) {
         event.preventDefault();
@@ -454,7 +456,7 @@
           }
         });
         //save to endpoint
-        jQuery.publish('annotationUpdated.' + _this.parent.windowId, [oaAnno]);
+        jQuery.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
       });
 
       jQuery(selector + ' a.cancel').on("click", function(event) {
