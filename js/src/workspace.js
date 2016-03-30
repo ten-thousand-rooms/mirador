@@ -111,7 +111,7 @@
         var window = _this.getWindowById(windowId);
         if (window) {
           console.log('slot address: ' + window.slotAddress);
-          var slot = window.parent;
+          var slot = _this.getSlotFromAddress(window.slotAddress);
           if (!_this.getAvailableSlot()) {
             _this.split(slot, 'r', $.AnnotationWindow);
           }
