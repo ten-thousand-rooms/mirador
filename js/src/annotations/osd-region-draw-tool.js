@@ -123,12 +123,18 @@
       _this.annotationsToShapesMap = {};
       var deferreds = jQuery.map(this.list, function(annotation) {
         var deferred = jQuery.Deferred();
+        
+        console.log('O1: ');
+        console.dir(annotation);
 
         // XXX seong
         if (annotation.on === 'object' && annotation.on['@type'] === 'oa:Annotation') {
           // Annotation on annotation
           return deferred;
         }
+        
+        console.log('O2: ');
+        console.dir(annotation);
         
         var shapeArray;
         if (typeof annotation.on === 'object') {

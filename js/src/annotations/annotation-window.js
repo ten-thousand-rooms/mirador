@@ -5,8 +5,8 @@
   $.AnnotationWindow = function(options) {
     jQuery.extend(this, {
       element: null,
-      parent: null, // slot
       canvasWindow: null, // window that contains the canvas for the annotations
+      slotAddress: null
     }, options);
 
     this.init();
@@ -197,8 +197,8 @@
       this.element.find('.annowin_remove_slot').click(function(event) {
         event.stopPropagation();
         event.preventDefault();
-        var slot = _this.parent;
-        var workspace = slot.parent;
+        var workspace = $.viewer.workspace;
+        var slot = workspace.getSlotFromAddress(_this.slotAddress);
         workspace.removeNode(slot);
       });
       
