@@ -6,6 +6,7 @@
     jQuery.extend(this, {
       element: null,
       canvasWindow: null, // window that contains the canvas for the annotations
+      id: null,
       slotAddress: null
     }, options);
 
@@ -16,6 +17,9 @@
     
     init: function () {
       console.log('AnnotationWindow#init this.appendTo: ' + this.appendTo);
+      if (!this.id) {
+        this.id = $.genUUID();
+      }
       this.endpoint = this.canvasWindow.endpoint;
       this.element = jQuery(this.template({})).appendTo(this.appendTo);
       this.layerSelect = this.element.find('.annowin_select_layer');
@@ -192,11 +196,11 @@
         _this.updateList(_this.currentLayerID);
       });
       
-      jQuery.subscribe('endpointAnnoListLoaded', function(event, windowID) {
+      jQuery.subscribe('ANNOTATIONS_LIST_UPDATED', function(event, windowId, annotationsList) {
         _this.reload();
       });
       
-      jQuery.subscribe('annotation_focused.' + this.canvasWindow.id, function(event, annotation) {
+      jQuery.subscribe('ANNOTATION_FOCUSED', function(event, annoWinId, annotation) {
         console.log('Annotation window received annotation_focused event');
         if (annotation.on['@type'] == 'oa:Annotation') {
           var targetID = annotation.on.full;
@@ -210,13 +214,11 @@
       var infoElem = annoElem.find('.annowin_info');
 
       annoElem.click(function(event) {
-        var windowId = _this.canvasWindow.id;
-        
         if ($.getLinesOverlay().isActive()) {
           jQuery.publish('target_annotation_selected', annotation);
         } else {
           _this.highlightFocusedAnnotation(annotation);
-          jQuery.publish('annotation_focused.' + windowId, annotation);
+          jQuery.publish('ANNOTATION_FOCUSED', [_this.id, annotation]);
         }
       });
       

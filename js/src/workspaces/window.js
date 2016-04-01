@@ -273,8 +273,7 @@
       });
 
       // XXX seong
-      jQuery.subscribe('annotation_focused.' + this.id, function(event, annotation) {
-        console.log('Window#bindEvents annotation_focused annotation: ' + annotation);
+      jQuery.subscribe('ANNOTATION_FOCUSED', function(event, annoWinId, annotation) {
         var imageView = _this.focusModules.ImageView;
         var annoState = imageView.hud.annoState.current;
         
@@ -354,13 +353,6 @@
           _this.annotationsList.push(data);
           //update overlay so it can be a part of the annotationList rendering
           jQuery(osdOverlay).removeClass('osd-select-rectangle').addClass('annotation').attr('id', annoID);
-
-          // XXX seong
-          // To notify annotation windows of the canvas update.
-          // Cannot reuse the "annotationListLoaded" event because it gets
-          // unsubscribed.
-          jQuery.publish('endpointAnnoListLoaded', [_this.id]);
-
           jQuery.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
         },
         function() {
@@ -381,12 +373,6 @@
             }
           });
 
-          // XXX seong
-          // To notify annotation windows of the canvas update.
-          // Cannot reuse the "annotationListLoaded" event because it gets
-          // unsubscribed.
-          jQuery.publish('endpointAnnoListLoaded', [_this.id]);
-
           jQuery.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
         },
         function() {
@@ -400,12 +386,6 @@
         _this.endpoint.deleteAnnotation(annoId, function() {
           _this.annotationsList = jQuery.grep(_this.annotationsList, function(e){ return e['@id'] !== annoId; });
           jQuery.publish(('removeOverlay.' + _this.id), annoId);
-          
-          // To notify annotation windows of the canvas update.
-          // Cannot reuse the "annotationListLoaded" event because it gets
-          // unsubscribed.
-          jQuery.publish('endpointAnnoListLoaded', [_this.id]);
-
           jQuery.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
         },
         function() {
@@ -835,11 +815,6 @@
             return true;
           });
           
-          // To notify annotation windows of the canvas update.
-          // Cannot reuse the "annotationListLoaded" event because it gets
-          // unsubscribed.
-          jQuery.publish('endpointAnnoListLoaded', [_this.id]);
-
           jQuery.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
         });
       }
