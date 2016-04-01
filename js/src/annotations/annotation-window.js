@@ -73,13 +73,142 @@
     addAnnotation: function(annotation) {
       //console.log('AnnotationWindow#addAnnotation:');
       //console.dir(annotation);
-      var _this = this;
       var content = annotation.resource[0].chars;
       var annoHtml = this.annotationTemplate({content: content});
       var annoElem = jQuery(annoHtml);
+      var infoDiv = annoElem.find('.info_view');
       
       annoElem.data('annotationID', annotation['@id']);
+      this.setAnnotationItemInfo(annoElem, annotation);
+      this.bindAnnotationItemEvents(annoElem, annotation);
+      infoDiv.hide();
+      this.listElem.append(annoElem);
+    },
+    
+    setAnnotationItemInfo: function(annoElem, annotation) {
+      var infoElem = annoElem.find('.annowin_info');
+      if (annotation.on['@type'] == 'oa:Annotation') { // target: annotation
+        infoElem.addClass('anno_on_anno');
+      } else {
+        infoElem.removeClass('anno_on_anno');
+      }
+    },
+    
+    getCurrentCanvas: function() {
+      var window = this.canvasWindow;
+      var id = window.currentCanvasID;
+      var canvases = window.manifest.getCanvases();
+      return canvases.filter(function (canvas) {
+        return canvas['@id'] === id;
+      })[0];
+    },
+    
+    highlightFocusedAnnotation: function(annotation) {
+      this.listElem.find('.annowin_anno').each(function(index, value) {
+        var annoElem = jQuery(value);
+        var annoID = annoElem.data('annotationID');
+        if (annoID === annotation['@id']) {
+          annoElem.addClass('annowin_focused');
+        } else {
+          annoElem.removeClass('annowin_focused');
+        }
+      });
+    },
+    
+    highlightTargetedAnnotation: function(targetAnnotationID) {
+      this.listElem.find('.annowin_anno').each(function(index, value) {
+        var annoElem = jQuery(value);
+        var annoID = annoElem.data('annotationID');
+        if (annoID === targetAnnotationID) {
+          annoElem.addClass('annowin_targeted');
+        } else {
+          annoElem.removeClass('annowin_targeted');
+        }
+      });
+    },
+    
+    createInfoDiv: function(annotation, callback) {
+      var targetAnnoID = annotation.on.full;
+      var targetLink = '<a target="_blank" href="' + targetAnnoID + '">' + targetAnnoID + '</a>';
+      return jQuery(this.infoTemplate({ on: targetLink }));
+    },
+    
+    bindEvents: function() {
+      var _this = this;
       
+      this.element.find('.mirador-icon-window-menu').on('mouseenter',
+        function() {
+          _this.element.find('.slot-controls').stop().slideFadeToggle(300);
+      }).on('mouseleave',
+        function() {
+          _this.element.find('.slot-controls').stop().slideFadeToggle(300);
+      });
+      
+      this.element.find('.add-slot-right').on('click', function() {
+        $.viewer.workspace.splitRight(_this.parent);
+      });
+
+      this.element.find('.add-slot-left').on('click', function() {
+        $.viewer.workspace.splitLeft(_this.parent);
+      });
+
+      this.element.find('.add-slot-below').on('click', function() {
+        $.viewer.workspace.splitDown(_this.parent);
+      });
+
+      this.element.find('.add-slot-above').on('click', function() {
+        $.viewer.workspace.splitUp(_this.parent);
+      });
+      
+      this.element.find('.annowin_create_anno').click(function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        if (_this.element.find('.annotation_editor').size() > 0) {
+          return;
+        }
+
+        var editor = new $.AnnotationEditor({
+          parent: _this.editorRow,
+          canvasWindow: _this.canvasWindow,
+          mode: 'create',
+          endpoint: _this.endpoint
+        });
+        editor.show();
+      });
+      
+      this.element.find('.annowin_remove_slot').click(function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        var workspace = $.viewer.workspace;
+        var slot = workspace.getSlotFromAddress(_this.slotAddress);
+        workspace.removeNode(slot);
+      });
+      
+      // When a new layer is selected
+      this.layerSelect.change(function(event) {
+        console.log('AnnotationWindow layer selected: ' + _this.layerSelect.val());
+        _this.currentLayerID = _this.layerSelect.val();
+        _this.updateList(_this.currentLayerID);
+      });
+      
+      jQuery.subscribe('endpointAnnoListLoaded', function(event, windowID) {
+        _this.reload();
+      });
+      
+      jQuery.subscribe('annotation_focused.' + this.canvasWindow.id, function(event, annotation) {
+        console.log('Annotation window received annotation_focused event');
+        if (annotation.on['@type'] == 'oa:Annotation') {
+          var targetID = annotation.on.full;
+          _this.highlightTargetedAnnotation(targetID);
+        }
+      });
+    },
+    
+    bindAnnotationItemEvents: function(annoElem, annotation) {
+      var _this = this;
+      var infoElem = annoElem.find('.annowin_info');
+
       annoElem.click(function(event) {
         var windowId = _this.canvasWindow.id;
         
@@ -119,105 +248,13 @@
         }
       });
       
-      this.listElem.append(annoElem);
-    },
-    
-    getCurrentCanvas: function() {
-      var window = this.canvasWindow;
-      var id = window.currentCanvasID;
-      var canvases = window.manifest.getCanvases();
-      return canvases.filter(function (canvas) {
-        return canvas['@id'] === id;
-      })[0];
-    },
-    
-    highlightFocusedAnnotation: function(annotation) {
-      this.listElem.find('.annowin_anno').each(function(index, value) {
-        var annoElem = jQuery(value);
-        var annoID = annoElem.data('annotationID');
-        if (annoID === annotation['@id']) {
-          annoElem.addClass('annowin_focused');
+      infoElem.click(function(event) {
+        var infoDiv = annoElem.find('.info_view');
+        if (infoDiv.css('display') === 'none') {
+          infoDiv.replaceWith(_this.createInfoDiv(annotation));
+          infoDiv.show();
         } else {
-          annoElem.removeClass('annowin_focused');
-        }
-      });
-    },
-    
-    highlightTargetedAnnotation: function(targetAnnotationID) {
-      this.listElem.find('.annowin_anno').each(function(index, value) {
-        var annoElem = jQuery(value);
-        var annoID = annoElem.data('annotationID');
-        if (annoID === targetAnnotationID) {
-          annoElem.addClass('annowin_targeted');
-        } else {
-          annoElem.removeClass('annowin_targeted');
-        }
-      });
-    },
-
-    bindEvents: function() {
-      var _this = this;
-      
-      this.element.find('.mirador-icon-window-menu').on('mouseenter',
-        function() {
-          _this.element.find('.slot-controls').stop().slideFadeToggle(300);
-      }).on('mouseleave',
-        function() {
-          _this.element.find('.slot-controls').stop().slideFadeToggle(300);
-      });
-      
-      this.element.find('.add-slot-right').on('click', function() {
-        $.viewer.workspace.splitRight(_this.parent);
-      });
-
-      this.element.find('.add-slot-left').on('click', function() {
-        $.viewer.workspace.splitLeft(_this.parent);
-      });
-
-      this.element.find('.add-slot-below').on('click', function() {
-        $.viewer.workspace.splitDown(_this.parent);
-      });
-
-      this.element.find('.add-slot-above').on('click', function() {
-        $.viewer.workspace.splitUp(_this.parent);
-      });
-      
-      this.element.find('.annowin_create_anno').click(function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        var editor = new $.AnnotationEditor({
-          parent: _this.editorRow,
-          canvasWindow: _this.canvasWindow,
-          mode: 'create',
-          endpoint: _this.endpoint
-        });
-        editor.show();
-      });
-      
-      this.element.find('.annowin_remove_slot').click(function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        var workspace = $.viewer.workspace;
-        var slot = workspace.getSlotFromAddress(_this.slotAddress);
-        workspace.removeNode(slot);
-      });
-      
-      // When a new layer is selected
-      this.layerSelect.change(function(event) {
-        console.log('AnnotationWindow layer selected: ' + _this.layerSelect.val());
-        _this.currentLayerID = _this.layerSelect.val();
-        _this.updateList(_this.currentLayerID);
-      });
-      
-      jQuery.subscribe('endpointAnnoListLoaded', function(event, windowID) {
-        _this.reload();
-      });
-      
-      jQuery.subscribe('annotation_focused.' + this.canvasWindow.id, function(event, annotation) {
-        console.log('Annotation window received annotation_focused event');
-        if (annotation.on['@type'] == 'oa:Annotation') {
-          var targetID = annotation.on.full;
-          _this.highlightTargetedAnnotation(targetID);
+          infoDiv.hide();
         }
       });
     },
@@ -249,16 +286,24 @@
     
     annotationTemplate: Handlebars.compile([
       '<div class="annowin_anno">',
+      '  <div class="info_view"></div>',
       '  <div class="normal_view">',
       '    <div class="to_right">',
+      '      <a class="annowin_info"><i class="fa fa-info-circle"></i></a>',
       '      <a class="annowin_edit"><i class="fa fa-edit"></i></a>',
       '      <a class="annowin_delete"><i class="fa fa-times"></i></a>',
       '    </div>',
       '    <div class="content">{{{content}}}</div>',
       '  </div>',
       '</div>'
+    ].join('')),
+    
+    infoTemplate: Handlebars.compile([
+      '<div class="info_view">',
+      '  <span class="anno_info_label">On:<span>',
+      '  <span class="anno_info_value">{{{on}}}</span>',
+      '</div>'
     ].join(''))
-
   };
 
 })(Mirador);

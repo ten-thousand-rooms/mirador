@@ -26,7 +26,7 @@
         .appendTo(this.parent);
       var header = this.element.find('.header');
       var title = header.find('.title');
-      this.linkToTarget = header.find('.link_to_target');
+      this.linkToTarget = header.find('.anno_target_icon');
       this.textArea = this.element.find('textarea');
     
       if (this.mode === 'create') {
@@ -37,6 +37,7 @@
           endpoint: this.endpoint
         });
       } else { // update
+        this.linkToTarget.hide();
         title.text('');
         this.textArea.val(this.annotation.resource[0].chars);
         this.element.find('.layer_select').css('left', -1000);
@@ -138,6 +139,7 @@
       this.element.find('.save').click(function() {
         if (_this.validate()) {
           _this.save();
+          _this.destroy();
         }
       });
       
@@ -150,14 +152,17 @@
       
       jQuery.subscribe('target_annotation_selected', function(event, annotation) {
         _this.targetAnnotation = annotation;
-        _this.linkToTarget.attr('title', annotation['@id'] + ': ' + annotation.resource[0].chars);
+        _this.linkToTarget
+          .attr('title', annotation['@id'] + ': ' + annotation.resource[0].chars);
+        _this.linkToTarget.removeClass('anno_on_canvas')
+          .addClass('anno_on_anno');
       });
     },
     
     template: Handlebars.compile([
       '<div class="annotation_editor">',
       '  <div class="header">',
-      '    <span class="link_to_target"><i class="fa fa-link"></i></span>',
+      '    <span class="anno_target_icon"><i class="fa fa-link"></i></span>',
       '    <span class="title"></span>',
       '  </div>',
       '  <textarea></textarea>',

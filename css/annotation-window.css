@@ -4,6 +4,7 @@
 
 .to_right {
   float: right;
+  margin-left: 10px;
 }
 
 canvas#lines_overlay {
@@ -74,6 +75,11 @@ canvas#lines_overlay {
   border-color: #71bcd1;
 }
 
+.annowin_anno .info_view {
+  font-size: 0.9em;
+  background-color: #f0f0ff;
+}
+
 .annowin_focused {
   border-color: #71bcd1;
   border-width: 2px;
@@ -84,10 +90,33 @@ canvas#lines_overlay {
   border-width: 2px;
 }
 
+.annowin_info {
+  color: #4684cc;
+}
+
+.annowin_info.anno_on_anno {
+  color: #1f995a;
+}
+
 .annotation_editor {
   background-color: white;
   border: solid 3px #0072c4;
   padding: 5px;
+}
+
+/* Icon for link to the annotation target, shown in the annotation editor. */
+.anno_target_icon {
+  color: #b0b0b0;
+}
+
+/* When the annotation target is set for a canvas segment. */
+.anno_target_icon.anno_on_canvas {
+  color: #4684cc;
+}
+
+/* When the annotation target is set for another annotation. */
+.anno_target_icon.anno_on_anno {
+  color: #1f995a;
 }
 
 .annotation_editor .bottom_row {

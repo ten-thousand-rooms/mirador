@@ -278,7 +278,8 @@
         var imageView = _this.focusModules.ImageView;
         var annoState = imageView.hud.annoState.current;
         
-        if (annoState === 'annoOnCreateOff' || annoState === 'annoOnCreateOn') {
+        if ((annoState === 'annoOnCreateOff' || annoState === 'annoOnCreateOn') &&
+            annotation.on['@type'] !== 'oa:Annotation') {
           imageView.panToAnnotation(annotation);
         }
       });
