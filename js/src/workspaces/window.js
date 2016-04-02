@@ -900,7 +900,7 @@
                                  '<div class="window">',
                                  '<div class="manifest-info">',
                                  '<div class="window-manifest-navigation">',
-                                 '<a class="mirador-btn add-annotation-window" role="button" aria-label="Add an annotation window" title="Add an annotation window">',
+                                 '<a class="mirador-btn add-annotation-window" role="button" aria-label="Add an annotation window to the right" title="Add an annotation window">',
                                  '<i class="fa fa-lg fa-comments-o"></i>',
                                  '</a>',
                                  '<a href="javascript:;" class="mirador-btn mirador-icon-image-view" role="button" aria-label="Change Image Mode"><i class="fa fa-photo fa-lg fa-fw"></i>',

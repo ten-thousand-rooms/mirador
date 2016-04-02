@@ -120,14 +120,28 @@
     },
     
     highlightTargetedAnnotation: function(targetAnnotationID) {
+      var _this = this;
+      
       this.listElem.find('.annowin_anno').each(function(index, value) {
         var annoElem = jQuery(value);
         var annoID = annoElem.data('annotationID');
         if (annoID === targetAnnotationID) {
+          console.log('top: ' + annoElem.position().top);
           annoElem.addClass('annowin_targeted');
+          
+          _this.listElem.animate({
+            scrollTop: annoElem.position().top
+          }, 250);
         } else {
           annoElem.removeClass('annowin_targeted');
         }
+      });
+    },
+    
+    clearHighlights: function() {
+      this.listElem.find('.annowin_anno').each(function(index, value) {
+        jQuery(value).removeClass('annowin_targeted')
+          .removeClass('annowin_focused');
       });
     },
     
@@ -202,8 +216,9 @@
       
       jQuery.subscribe('ANNOTATION_FOCUSED', function(event, annoWinId, annotation) {
         console.log('Annotation window received annotation_focused event');
-        if (annotation.on['@type'] == 'oa:Annotation') {
+        if (annoWinId !== _this.id && annotation.on['@type'] == 'oa:Annotation') {
           var targetID = annotation.on.full;
+          _this.clearHighlights();
           _this.highlightTargetedAnnotation(targetID);
         }
       });
@@ -217,6 +232,7 @@
         if ($.getLinesOverlay().isActive()) {
           jQuery.publish('target_annotation_selected', annotation);
         } else {
+          _this.clearHighlights();
           _this.highlightFocusedAnnotation(annotation);
           jQuery.publish('ANNOTATION_FOCUSED', [_this.id, annotation]);
         }

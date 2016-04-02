@@ -59,6 +59,7 @@ canvas#lines_overlay {
 }
 
 .annowin_list {
+  position: relative; /* required to make the div "positioned" so the child elements' positions to be obtained and scroll levels adjusted accordingly. */
   overflow-y: scroll;
   border: solid 2px #71bcd1;
   /*height: 80%;*/
