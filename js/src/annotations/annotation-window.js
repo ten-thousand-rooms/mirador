@@ -25,11 +25,14 @@
       this.layerSelect = this.element.find('.annowin_select_layer');
       this.currentLayerID = 'any';
       this.editorRow = this.element.find('.annowin_creator'); // placeholder for annotation editor for creation
+      this.placeholder = this.element.find('.placeholder');
+      this.placeholder.text('Loading...').show();
       this.reload();
       this.bindEvents();
     },
     
     reload: function () {
+      this.placeholder.hide();
       var canvas = this.getCurrentCanvas();
       this.element.find('.title').text(canvas.label);
       this.updateLayers();
@@ -63,15 +66,22 @@
       this.listElem = this.element.find('.annowin_list');
       this.listElem.empty();
       
+      var count = 0;
+      
       jQuery.each(annotationsList, function(index, value) {
         try {
           if (layerID === 'any' || layerID === value.layerID) {
+            ++count;
             _this.addAnnotation(value);
           }
         } catch (e) {
           console.log('ERROR AnnotationWindow#updateList ' + e);
         }
       });
+      
+      if (count === 0) {
+        this.placeholder.text('No annotations found.').show();
+      }
     },
     
     addAnnotation: function(annotation) {
@@ -222,6 +232,10 @@
           _this.highlightTargetedAnnotation(targetID);
         }
       });
+      
+      jQuery.subscribe(('currentCanvasIDUpdated.' + this.canvasWindow.id), function(event) {
+        _this.placeholder.text('Loading...').show();
+      });
     },
     
     bindAnnotationItemEvents: function(annoElem, annotation) {
@@ -297,6 +311,7 @@
       '    <a class="annowin_create_anno"><i class="fa fa-edit fa-lg fa-fw"></i></a>',
       '  </div>',
       '  <div class="annowin_creator"></div>',
+      '  <div class="placeholder"></div>',
       '  <div class="annowin_list">',
       '  </div>',
       '</div>'

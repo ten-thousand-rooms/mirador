@@ -123,3 +123,7 @@ canvas#lines_overlay {
 .annotation_editor .bottom_row {
   min-height: 25px;
 }
+
+.placeholder {
+  padding: 5px;
+}
