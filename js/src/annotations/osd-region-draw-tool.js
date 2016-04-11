@@ -129,6 +129,13 @@
           // Annotation on annotation
           return deferred;
         }
+        
+        // XXX seong
+        if (!annotation.on.selector || !annotation.on.selector.value) {
+          console.log('ERROR invalid annotation:');
+          console.dir(annotation);
+          return deferred;
+        }
 
         var shapeArray;
         if (typeof annotation.on === 'object') {
