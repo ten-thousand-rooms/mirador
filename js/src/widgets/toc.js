@@ -68,9 +68,15 @@
     getTplData: function() {
       var _this = this,
       ranges = _this.extractRangeTrees(_this.ranges);
-
+      
       if (ranges.length < 2) {
-        ranges = ranges[0].children;
+        //ranges = ranges[0].children;
+        /*
+           XXX BH (Bryan Haberberger) edit 
+           A range can exist outside of a parent.  Therefore, even if the length is just one, we still 
+           want to return the array of one range.  The template function checks the one item, realizes it doesn't have
+           children and deems it a leaf, which is what we want. 
+       */
       }
 
       return ranges;
