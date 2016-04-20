@@ -40,6 +40,7 @@
         }
       }
       
+      // XXX seong
       var layerSelectContainer = null;
       if ($.viewer) { // if viewer has been created
         layerSelectContainer = this.createLayerSelect();
