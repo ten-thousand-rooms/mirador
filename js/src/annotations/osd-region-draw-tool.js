@@ -121,9 +121,22 @@
       this.svgOverlay.paperScope.project.clear();
       var _this = this;
       _this.annotationsToShapesMap = {};
+      
+      // XXX seong 
+      // Separated out the code into the new function renderAnnotation()
+      // so it is easier to debug.
       var deferreds = jQuery.map(this.list, function(annotation) {
         var deferred = jQuery.Deferred();
+        try {
+          return renderAnnotation(annotation, deferred);
+        } catch(e) {
+          console.log('ERROR : OsdRegionDrawTool#render annotation: ' + annotation['@id']);
+          console.log('Caught: ' + e);
+          return deferred;
+        }
+      });
         
+      function renderAnnotation(annotation, deferred) {
         // XXX seong
         if (typeof annotation.on === 'object' && annotation.on['@type'] === 'oa:Annotation') {
           // Annotation on annotation
@@ -154,7 +167,8 @@
         _this.svgOverlay.restoreLastView(shapeArray);
         _this.annotationsToShapesMap[$.genUUID()] = shapeArray;
         return deferred;
-      });
+      }
+
       jQuery.when.apply(jQuery, deferreds).done(function() {
         jQuery.publish('overlaysRendered.' + _this.windowId);
       });

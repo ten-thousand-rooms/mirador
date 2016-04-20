@@ -241,7 +241,7 @@
     bindAnnotationItemEvents: function(annoElem, annotation) {
       var _this = this;
       var infoElem = annoElem.find('.annowin_info');
-
+      
       annoElem.click(function(event) {
         if ($.getLinesOverlay().isActive()) {
           jQuery.publish('target_annotation_selected', annotation);
@@ -252,7 +252,39 @@
         }
       });
       
-      annoElem.find('.annowin_edit').click(function(event) {
+      annoElem.find('.annowin_item_menu').on('mouseenter',
+        function() {
+          var dropdown = annoElem.find('.item_menu_dropdown');
+          dropdown.stop().slideFadeToggle(300, function () {
+            var scrollTop = _this.listElem.scrollTop();
+            var scrollHeight = _this.listElem.height();
+            var scrollBottom = scrollTop + scrollHeight;
+            var top = dropdown.position().top;
+            var dropdownHeight = dropdown.outerHeight(true);
+            var bottom = dropdown.position().top + dropdownHeight;
+            var diff = bottom - scrollHeight;
+            
+            if (diff > 0) {
+              dropdown.css('top', scrollTop + scrollHeight - dropdownHeight + 'px');
+              dropdown.css('bottom', scrollTop + scrollHeight + 'px');
+            }
+          });
+      }).on('mouseleave',
+        function() {
+          annoElem.find('.item_menu_dropdown').stop().slideFadeToggle(300);
+      });
+      
+      annoElem.find('.move_up').click(function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+      });
+
+      annoElem.find('.move_down').click(function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+      });
+
+      annoElem.find('.edit').click(function(event) {
         event.preventDefault();
         event.stopPropagation();
         
@@ -271,7 +303,7 @@
         editor.show();
       });
       
-      annoElem.find('.annowin_delete').click(function(event) {
+      annoElem.find('.delete').click(function(event) {
         event.preventDefault();
         event.stopPropagation();
         
@@ -323,8 +355,14 @@
       '  <div class="normal_view">',
       '    <div class="to_right">',
       '      <a class="annowin_info"><i class="fa fa-info-circle"></i></a>',
-      '      <a class="annowin_edit"><i class="fa fa-edit"></i></a>',
-      '      <a class="annowin_delete"><i class="fa fa-times"></i></a>',
+      '      <a class="mirador-btn annowin_item_menu" title="Actions"><i class="fa fa-chevron-circle-right"></i>',
+      '        <ul class="dropdown item_menu_dropdown">',
+      '          <li class="move_up"><i class="fa fa-caret-square-o-up fa-fw"></i> {{t "moveUp"}}</li>',
+      '          <li class="move_down"><i class="fa fa-caret-square-o-down fa-fw"></i> {{t "moveDown"}}</li>',
+      '          <li class="edit"><i class="fa fa-edit fa-fw"></i> {{t "edit"}}</li>',
+      '          <li class="delete"><i class="fa fa-times fa-fw"></i> {{t "delete"}}</li>',
+      '        </ul>',
+      '      </a>',
       '    </div>',
       '    <div class="content">{{{content}}}</div>',
       '  </div>',

@@ -62,12 +62,12 @@ canvas#lines_overlay {
   position: relative; /* required to make the div "positioned" so the child elements' positions to be obtained and scroll levels adjusted accordingly. */
   overflow-y: scroll;
   border: solid 2px #71bcd1;
-  /*height: 80%;*/
+  height: 100%;
 }
 
 .annowin_anno {
   border: solid 1px #808080;
-  padding: 5px;
+  padding: 10px;
   margin: 5px;
   background-color: #fafafa;
 }
@@ -126,4 +126,8 @@ canvas#lines_overlay {
 
 .placeholder {
   padding: 5px;
+}
+
+.item_menu_dropdown {
+  right: 0px;
 }

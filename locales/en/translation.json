@@ -32,5 +32,7 @@
     "newObject": "New Object",
     "objectMetadata": "Object Metadata",
     "fullScreen": "Full Screen",
-    "logo": "Logo"
+    "logo": "Logo",
+    "moveUp": "Move Up",
+    "moveDown": "Move Down"
 }
