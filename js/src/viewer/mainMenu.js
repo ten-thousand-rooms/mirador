@@ -46,7 +46,21 @@
                 userLogo:    this.state.getStateProperty('mainMenuSettings').userLogo
             }));
 
+            this.listenForActions();
             this.bindEvents();
+        },
+
+        listenForActions: function() {
+          var _this = this;
+
+          jQuery.subscribe('MAINMENU_FULLSCREEN_BUTTON', function(event) {
+            var fullScreenButton = _this.element.find('.fullscreen-viewer span');
+            if (fullScreenButton.hasClass('fa-expand')) {
+              fullScreenButton.removeClass('fa-expand').addClass('fa-compress');
+            } else {
+              fullScreenButton.removeClass('fa-compress').addClass('fa-expand');
+            }
+          });
         },
 
         bindEvents: function() {
@@ -77,28 +91,28 @@
         '{{#if showBookmark}}',
           '<li>',
             '<a href="javascript:;" class="bookmark-workspace" title="{{t "bookmark"}}">',
-              '<span class="icon-bookmark-workspace"></span>{{t "bookmark"}}',
+              '<span class="fa fa-bookmark fa-lg fa-fw"></span> {{t "bookmark"}}',
             '</a>',
           '</li>',
         '{{/if}}',
         /*'{{#if showOptions}}',
           '<li>',
             '<a href="javascript:;" class="window-options" title="Window Options">',
-              '<span class="icon-window-options"></span>Options',
+              '<span class=""></span>Options',
             '</a>',
           '</li>',
         '{{/if}}',*/
         '{{#if showLayout}}',
           '<li>',
             '<a href="javascript:;" class="change-layout" title="{{t "changeLayout"}}">',
-              '<span class="icon-window-options"></span>{{t "changeLayout"}}',
+              '<span class="fa fa-th-large fa-lg fa-fw"></span> {{t "changeLayout"}}',
             '</a>',
           '</li>',
         '{{/if}}',
         '{{#if showFullScreenViewer}}',
           '<li>',
             '<a href="javascript:;" class="fullscreen-viewer" title="{{t "fullScreen"}}">',
-              '<span class="fa fa-expand"></span> {{t "fullScreen"}}',
+              '<span class="fa fa-expand fa-lg fa-fw"></span> {{t "fullScreen"}}',
             '</a>',
           '</li>',
         '{{/if}}',

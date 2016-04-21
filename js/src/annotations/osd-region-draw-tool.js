@@ -176,7 +176,7 @@
       var windowElement = _this.state.getWindowElement(_this.windowId);
       this.annoTooltip = new $.AnnotationTooltip({
         targetElement: jQuery(this.osdViewer.element),
-        parent: _this,
+        state: _this.state,
         windowId: _this.parent.windowId
       });
       this.annoTooltip.initializeViewerUpgradableToEditor({

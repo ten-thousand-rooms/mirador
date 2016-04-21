@@ -5,7 +5,6 @@
     jQuery.extend(this, {
       targetElement: null,
       annotations: [],
-      parent: null,
       windowId: "",
     }, options);
 
@@ -15,8 +14,8 @@
   $.AnnotationTooltip.prototype = {
 
     init: function() {
-      this.editor = $[$.saveController.currentConfig.annotationBodyEditor.module];
-      this.editorOptions = $.saveController.currentConfig.annotationBodyEditor.options;
+      this.editor = $[this.state.currentConfig.annotationBodyEditor.module];
+      this.editorOptions = this.state.currentConfig.annotationBodyEditor.options;
 
       this.activeEditor = null;
       this.activeEditorTip = null;
@@ -92,7 +91,6 @@
               event.preventDefault();
 
               var annotation = _this.activeEditor.createAnnotation();
-              
               if (params.onAnnotationCreated) { params.onAnnotationCreated(annotation); }
 
               api.destroy();
@@ -348,7 +346,7 @@
       return template;
       //return combination of all of them
     },
-    
+
     freezeQtip: function(api, oaAnno, viewerParams) {
       if (this.inEditOrCreateMode) { throw 'AnnotationTooltip already in edit mode'; }
       this.inEditOrCreateMode = true;
@@ -401,7 +399,7 @@
       '</div>',
       '</form>'
     ].join('')),
-    
+
     viewerTemplate: Handlebars.compile([
       '<div class="all-annotations" id="annotation-viewer-{{windowId}}">',
       '{{#each annotations}}',

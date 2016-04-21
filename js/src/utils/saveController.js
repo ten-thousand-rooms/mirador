@@ -20,6 +20,11 @@
       }
     }
 
+    // error check on mainMenuSettings
+    if (config.mainMenuSettings && !config.mainMenuSettings.buttons) {
+      config.mainMenuSettings.buttons = {};
+    }
+
     this.init(jQuery.extend(false, $.DEFAULT_SETTINGS, config));
 
   };

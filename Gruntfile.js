@@ -24,7 +24,7 @@ module.exports = function(grunt) {
   // libraries/plugins
   vendors = [
     'js/lib/jquery.min.js',
-    'js/lib/jquery-ui-1.9.2.min.js',
+    'js/lib/jquery-ui.min.js',
     'js/lib/jquery.scrollTo.min.js',
     'js/lib/jquery.qtip.min.js',
     'js/lib/state-machine.min.js',
@@ -94,11 +94,12 @@ module.exports = function(grunt) {
         src: [
         'css/normalize.css',
         'css/font-awesome.css',
-        'css/jquery-ui.custom.min.css',
+        'css/jquery-ui.min.css',
         'css/layout-default-latest.css',
         'css/jquery.qtip.min.css',
         'css/spectrum.css',
         'css/mirador.css',
+        'css/material-icons.css',
         'css/annotation-window.css',
         'css/material-icons.css',
         '!css/mirador-combined.css'
@@ -109,7 +110,7 @@ module.exports = function(grunt) {
 
     cssmin: {
       minify: {
-        src: 'css/mirador-combined.css',
+        src: 'build/mirador/css/mirador-combined.css',
         dest: 'build/mirador/css/mirador-combined.min.css'
       }
     },
@@ -206,6 +207,7 @@ module.exports = function(grunt) {
           'Gruntfile.js',
           'js/src/*.js',
           'js/src/*/*.js',
+          'locales/*/*.json',
           'images/*',
           'css/*.css',
           'index.html'

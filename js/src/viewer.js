@@ -57,7 +57,16 @@
       jQuery.each(this.state.getStateProperty('mainMenuSettings').buttons, function(key, value) {
         if (value) { showMainMenu = true; }
       });
-      //even if buttons are available, developer can override and set show to false
+      // but, mainMenu should be displayed if we have userButtons and/or userLogo defined
+      if (this.state.getStateProperty('mainMenuSettings').userButtons && this.state.getStateProperty('mainMenuSettings').userButtons.length > 0) {
+        showMainMenu = true;
+      }
+      if (this.state.getStateProperty('mainMenuSettings').userLogo && !jQuery.isEmptyObject(this.state.getStateProperty('mainMenuSettings').userLogo)) {
+        showMainMenu = true;
+      }
+
+      //even if all these buttons are available, developer can override and set show to false,
+      //in which case, don't show mainMenu at all
       if (this.state.getStateProperty('mainMenuSettings').show === false) {
         showMainMenu = false;
       }
@@ -90,7 +99,10 @@
       });
 
       this.manifestsPanel = new $.ManifestsPanel({ appendTo: this.element.find('.mirador-viewer'), state: this.state });
-      this.bookmarkPanel = new $.BookmarkPanel({ appendTo: this.element.find('.mirador-viewer'), state: this.state });
+      //only instatiate bookmarkPanel if we need it
+      if (showMainMenu && this.state.getStateProperty('mainMenuSettings').buttons.bookmark) {
+        this.bookmarkPanel = new $.BookmarkPanel({ appendTo: this.element.find('.mirador-viewer'), state: this.state });
+      }
 
       // set this to be displayed
       this.set('currentWorkspaceVisible', true);
@@ -129,7 +141,19 @@
       });
 
       jQuery.subscribe('TOGGLE_FULLSCREEN', function(event) {
-        _this.fullscreenElement() ? _this.exitFullscreen() : _this.enterFullscreen();
+        if ($.fullscreenElement()) {
+          $.exitFullscreen();
+          //enable any window-specific fullscreen buttons
+          jQuery.publish('ENABLE_WINDOW_FULLSCREEN');
+        } else {
+          $.enterFullscreen(_this.element[0]);
+          //disable any window-specific fullscreen buttons
+          jQuery.publish('DISABLE_WINDOW_FULLSCREEN');
+        }
+      });
+      
+      jQuery(document).on("webkitfullscreenchange mozfullscreenchange fullscreenchange", function() {
+        jQuery.publish('MAINMENU_FULLSCREEN_BUTTON');
       });
 
       jQuery.subscribe('TOGGLE_LOAD_WINDOW', function(event) {
@@ -195,38 +219,6 @@
 
     toggleBookmarkPanel: function() {
       this.toggleOverlay('bookmarkPanelVisible');
-    },
-
-    enterFullscreen: function() {
-      var el = this.element[0];
-      if (el.requestFullscreen) {
-        el.requestFullscreen();
-      } else if (el.mozRequestFullScreen) {
-        el.mozRequestFullScreen();
-      } else if (el.webkitRequestFullscreen) {
-        el.webkitRequestFullscreen();
-      } else if (el.msRequestFullscreen) {
-        el.msRequestFullscreen();
-      }
-    },
-
-    exitFullscreen: function() {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      }
-    },
-
-    isFullscreen: function() {
-      var fullscreen = this.fullscreenElement();
-      return (fullscreen.length > 0);
-    },
-
-    fullscreenElement: function() {
-      return (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement);
     },
 
     getManifestsData: function() {

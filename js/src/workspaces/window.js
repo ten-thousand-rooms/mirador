@@ -68,6 +68,12 @@
         "slotLeft" : true,
         "slotAbove" : true,
         "slotBelow" : true
+      },
+      iconClasses: {
+        "ImageView" : "fa fa-photo fa-lg fa-fw",
+        "BookView" : "fa fa-columns fa-lg fa-fw",
+        "ScrollView" : "fa fa-ellipsis-h fa-lg fa-fw",
+        "ThumbnailsView" : "fa fa-th fa-lg fa-rotate-90 fa-fw"
       }
     }, options);
 
@@ -138,10 +144,12 @@
       }
 
       //determine if any buttons should be hidden in template
+      templateData.iconClasses = {};
       jQuery.each(this.focuses, function(index, value) {
         templateData[value] = true;
+        templateData.iconClasses[value] = _this.iconClasses[value];
       });
-      templateData.title = manifest.label;
+      templateData.title = $.JsonLd.getTextValue(manifest.label);
       templateData.displayLayout = this.displayLayout;
       templateData.layoutOptions = this.layoutOptions;
       // if displayLayout is true,  but all individual options are set to false, set displayLayout to false
@@ -150,6 +158,8 @@
           return _this.layoutOptions[element] === false;
         });
       }
+      templateData.currentFocusClass = _this.iconClasses[_this.currentFocus];
+      templateData.showFullScreen = _this.fullScreenAvailable;
       _this.element = jQuery(this.template(templateData)).appendTo(_this.appendTo);
       jQuery.publish('WINDOW_ELEMENT_UPDATED', {windowId: _this.id, element: _this.element});
 
@@ -257,12 +267,10 @@
 
       jQuery.subscribe('sidePanelStateUpdated.' + this.id, function(event, state) {
         if (state.open) {
-            _this.element.find('.fa-list').switchClass('fa-list', 'fa-caret-down');
             _this.element.find('.mirador-icon-toc').addClass('selected');
             _this.element.find('.view-container').removeClass('maximised');
         } else {
             _this.element.find('.mirador-icon-toc').removeClass('selected');
-            _this.element.find('.fa-caret-down').switchClass('fa-caret-down', 'fa-list');
             _this.element.find('.view-container').addClass('maximised');
         }
       });
@@ -319,9 +327,13 @@
         var visible = !_this.bottomPanelVisible;
         _this.bottomPanelVisibility(visible);
       });
+      
+      jQuery.subscribe('DISABLE_WINDOW_FULLSCREEN', function(event) {
+        _this.element.find('.mirador-osd-fullscreen').hide();
+      });
 
-      jQuery.subscribe('REQUEST_OSD_FULL_SCREEN.' + this.id, function(event) {
-        OpenSeadragon.requestFullScreen(_this.element[0]);
+      jQuery.subscribe('ENABLE_WINDOW_FULLSCREEN', function(event) {
+        _this.element.find('.mirador-osd-fullscreen').show();        
       });
     },
 
@@ -339,6 +351,18 @@
           _this.focusModules.ScrollView.reloadImages(Math.floor(containerHeight * _this.scrollImageRatio), triggerShow);
         }
       }, 300));
+
+      this.element.find('.mirador-osd-fullscreen').on('click', function() {
+        if ($.fullscreenElement()) {
+          $.exitFullscreen();
+        } else {
+          $.enterFullscreen(_this.element[0]);
+        }
+      });
+
+      jQuery(document).on("webkitfullscreenchange mozfullscreenchange fullscreenchange", function() {
+        _this.fullScreen();
+      });
 
     },
 
@@ -534,13 +558,11 @@
       sidePanelElement.css('transition-duration', transitionDuration);
       viewContainerElement.css('transition', transitionDuration);
       if (visible && sidePanelElement.hasClass('minimized')) {
-        tocIconElement.find('.fa-list').switchClass('fa-list', 'fa-caret-down');
-        tocIconElement.addClass('selected').css('background','#efefef');
+        tocIconElement.addClass('selected');
         sidePanelElement.removeClass('minimized').width(280).css('border-right', '1px solid lightgray');
         viewContainerElement.css('margin-left', 280);
       } else if (!visible && !sidePanelElement.hasClass('minimized')) {
-        tocIconElement.find('.fa-caret-down').switchClass('fa-caret-down', 'fa-list');
-        tocIconElement.removeClass('selected').css('background', '#fafafa');
+        tocIconElement.removeClass('selected');
         viewContainerElement.css('margin-left', 0);
         sidePanelElement.addClass('minimized').css('border', 'none').width(0);
       }
@@ -647,8 +669,7 @@
           annotationLayerAvailable: this.annotationLayerAvailable,
           annotationCreationAvailable: this.annotationCreationAvailable,
           annoEndpointAvailable: this.annoEndpointAvailable,
-          annotationState : this.annotationState,
-          fullScreenAvailable: this.fullScreenAvailable
+          annotationState : this.annotationState
         });
       } else {
         var view = this.focusModules.ImageView;
@@ -668,8 +689,7 @@
           canvasID: canvasID,
           imagesList: this.imagesList,
           osdOptions: this.focusOptions,
-          bottomPanelAvailable: this.bottomPanelAvailable,
-          fullScreenAvailable: this.fullScreenAvailable
+          bottomPanelAvailable: this.bottomPanelAvailable
         });
       } else {
         var view = this.focusModules.BookView;
@@ -736,28 +756,8 @@
 
     updateManifestInfo: function() {
       var _this = this;
-      this.element.find('.window-manifest-navigation').children().removeClass('selected');
-      switch(_this.currentFocus) {
-        case 'ThumbnailsView':
-          //hide thumbnails button and highlight currentImageMode?
-          _this.element.find('.mirador-icon-thumbs-view').addClass('selected');
-        break;
-        case 'ImageView':
-          //highlight Single Image View option
-          _this.element.find('.mirador-icon-image-view').addClass('selected');
-        break;
-        case 'BookView':
-          //highlight Book View option
-          _this.element.find('.mirador-icon-image-view').addClass('selected');
-        break;
-        case 'ScrollView':
-          //highlight Scroll View option
-          _this.element.find('.mirador-icon-thumbs-view').addClass('selected');
-        break;
-        default:
-          break;
-      }
-
+      _this.element.find('.mirador-icon-view-type > i:first').removeClass().addClass(_this.iconClasses[_this.currentFocus]);
+      
       if (this.focusOverlaysAvailable[this.currentFocus].overlay.MetadataView) {
         this.element.find('.mirador-icon-metadata-view').addClass('selected');
       }
@@ -820,11 +820,23 @@
       }
     },
 
+    fullScreen: function() {
+      if (!OpenSeadragon.isFullScreen()) {
+        this.element.find('.mirador-osd-fullscreen i').removeClass('fa-compress').addClass('fa-expand');
+        this.element.find('.mirador-osd-toggle-bottom-panel').show();
+        jQuery.publish('SET_BOTTOM_PANEL_VISIBILITY.' + this.id, true);
+      } else {
+        this.element.find('.mirador-osd-fullscreen i').removeClass('fa-expand').addClass('fa-compress');
+        this.element.find('.mirador-osd-toggle-bottom-panel').hide();
+        jQuery.publish('SET_BOTTOM_PANEL_VISIBILITY.' + this.id, false);
+      }
+    },
+
     // based on currentFocus
     bindNavigation: function() {
       var _this = this;
 
-      this.element.find('.mirador-icon-image-view').on('mouseenter',
+      this.element.find('.mirador-icon-view-type').on('mouseenter',
         function() {
         _this.element.find('.image-list').stop().slideFadeToggle(300);
       }).on('mouseleave',
@@ -903,53 +915,60 @@
                                  '<a class="mirador-btn add-annotation-window" role="button" aria-label="Add an annotation window to the right" title="Add an annotation window">',
                                  '<i class="fa fa-lg fa-comments-o"></i>',
                                  '</a>',
-                                 '<a href="javascript:;" class="mirador-btn mirador-icon-image-view" role="button" aria-label="Change Image Mode"><i class="fa fa-photo fa-lg fa-fw"></i>',
+                                 '<a href="javascript:;" class="mirador-btn mirador-icon-view-type" role="button" aria-label="Change View Type">',
+                                 '<i class="{{currentFocusClass}}"></i>',
+                                 '<i class="fa fa-caret-down"></i>',
                                  '<ul class="dropdown image-list">',
                                  '{{#if ImageView}}',
-                                 '<li class="single-image-option"><i class="fa fa-photo fa-lg fa-fw"></i> {{t "imageView"}}</li>',
+                                 '<li class="single-image-option"><i class="{{iconClasses.ImageView}}"></i> {{t "imageView"}}</li>',
                                  '{{/if}}',
                                  '{{#if BookView}}',
-                                 '<li class="book-option"><i class="fa fa-columns fa-lg fa-fw"></i> {{t "bookView"}}</li>',
+                                 '<li class="book-option"><i class="{{iconClasses.BookView}}"></i> {{t "bookView"}}</li>',
                                  '{{/if}}',
                                  '{{#if ScrollView}}',
-                                 '<li class="scroll-option"><i class="fa fa-ellipsis-h fa-lg fa-fw"></i> {{t "scrollView"}}</li>',
+                                 '<li class="scroll-option"><i class="{{iconClasses.ScrollView}}"></i> {{t "scrollView"}}</li>',
+                                 '{{/if}}',
+                                 '{{#if ThumbnailsView}}',
+                                 '<li class="thumbnails-option"><i class="{{iconClasses.ThumbnailsView}}"></i> {{t "thumbnailsView"}}</li>',
                                  '{{/if}}',
                                  '</ul>',
                                  '</a>',
-                                 '{{#if ThumbnailsView}}',
-                                 '<a href="javascript:;" class="mirador-btn mirador-icon-thumbs-view thumbnails-option" role="button" aria-label="Change to Thumbnails Mode"><i class="fa fa-th fa-lg fa-rotate-90 fa-fw"></i>',
-                                 '</a>',
-                                 '{{/if}}',
                                  '{{#if MetadataView}}',
                                  '<a href="javascript:;" class="mirador-btn mirador-icon-metadata-view" title="{{t "objectMetadata"}}" role="button" aria-label="View Information/Metadata about Object"><i class="fa fa-info-circle fa-lg fa-fw"></i></a>',
                                  '{{/if}}',
+                                 '{{#if showFullScreen}}',
+                                 '<a class="mirador-btn mirador-osd-fullscreen" role="button" aria-label="Toggle fullscreen">',
+                                 '<i class="fa fa-lg fa-fw fa-expand"></i>',
+                                 '</a>',
+                                 '{{/if}}',
                                  '</div>',
+                                 '{{#if layoutOptions.close}}',
+                                 '<a href="javascript:;" class="mirador-btn mirador-close-window remove-object-option" title="{{t "close"}}"><i class="fa fa-times fa-lg fa-fw"></i></a>',
+                                 '{{/if}}',
                                  '{{#if displayLayout}}',
-                                 '<a href="javascript:;" class="mirador-btn mirador-icon-window-menu" title="{{t "changeLayout"}}"><i class="fa fa-table fa-lg fa-fw"></i>',
+                                 '<a href="javascript:;" class="mirador-btn mirador-icon-window-menu" title="{{t "changeLayout"}}"><i class="fa fa-th-large fa-lg fa-fw"></i><i class="fa fa-caret-down"></i>',
                                  '<ul class="dropdown slot-controls">',
                                  '{{#if layoutOptions.newObject}}',
-                                 '<li class="new-object-option"><i class="fa fa-plus-square fa-lg fa-fw"></i> {{t "newObject"}}</li>',
-                                 '{{/if}}',
-                                 '{{#if layoutOptions.close}}',
-                                 '<li class="remove-object-option"><i class="fa fa-times fa-lg fa-fw"></i> {{t "close"}}</li>',
+                                 '<li class="new-object-option"><i class="fa fa-refresh fa-lg fa-fw"></i> {{t "newObject"}}</li>',
+                                 '<hr class="menu-divider"/>',
                                  '{{/if}}',
                                  '{{#if layoutOptions.slotRight}}',
-                                 '<li class="add-slot-right"><i class="fa fa-caret-square-o-right fa-lg fa-fw"></i> {{t "addSlotRight"}}</li>',
+                                 '<li class="add-slot-right"><i class="fa fa-arrow-circle-right fa-lg fa-fw"></i> {{t "addSlotRight"}}</li>',
                                  '{{/if}}',
                                  '{{#if layoutOptions.slotLeft}}',
-                                 '<li class="add-slot-left"><i class="fa fa-caret-square-o-left fa-lg fa-fw"></i> {{t "addSlotLeft"}}</li>',
+                                 '<li class="add-slot-left"><i class="fa fa-arrow-circle-left fa-lg fa-fw"></i> {{t "addSlotLeft"}}</li>',
                                  '{{/if}}',
                                  '{{#if layoutOptions.slotAbove}}',
-                                 '<li class="add-slot-above"><i class="fa fa-caret-square-o-up fa-lg fa-fw"></i> {{t "addSlotAbove"}}</li>',
+                                 '<li class="add-slot-above"><i class="fa fa-arrow-circle-up fa-lg fa-fw"></i> {{t "addSlotAbove"}}</li>',
                                  '{{/if}}',
                                  '{{#if layoutOptions.slotBelow}}',
-                                 '<li class="add-slot-below"><i class="fa fa-caret-square-o-down fa-lg fa-fw"></i> {{t "addSlotBelow"}}</li>',
+                                 '<li class="add-slot-below"><i class="fa fa-arrow-circle-down fa-lg fa-fw"></i> {{t "addSlotBelow"}}</li>',
                                  '{{/if}}',
                                  '</ul>',
                                  '</a>',
                                  '{{/if}}',
                                  '{{#if sidePanel}}',
-                                 '<a href="javascript:;" class="mirador-btn mirador-icon-toc selected" title="View/Hide Table of Contents"><i class="fa fa-caret-down fa-lg fa-fw"></i></a>',
+                                 '<a href="javascript:;" class="mirador-btn mirador-icon-toc selected" title="View/Hide Table of Contents"><i class="fa fa-bars fa-lg fa-fw"></i></a>',
                                  '{{/if}}',
                                  '<h3 class="window-manifest-title">{{title}}</h3>',
                                  '</div>',
