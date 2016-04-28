@@ -74,9 +74,8 @@
       var content = tinymce.activeEditor.getContent();
 
       if (this.mode == 'create') {
-        var layerID = this.layerSelect.val();
-        var annotation = this.createAnnotation(this.targetAnnotation, layerID, content);
-        //jQuery.publish('annotationCreated.' + this.canvasWindow.id, [annotation, null, layerID]);
+        var layerId = this.layerSelect.val();
+        var annotation = this.createAnnotation(this.targetAnnotation, layerId, content);
         jQuery.publish('annotationCreated.' + this.canvasWindow.id, [annotation, null]);
       } else {
         this.annotation.resource[0].chars = content;
@@ -108,7 +107,7 @@
       }
     },
     
-    createAnnotation: function (targetAnnotation, layerID, content) {
+    createAnnotation: function (targetAnnotation, layerId, content) {
       var annotation = {
         '@context': 'http://iiif.io/api/presentation/2/context.json',
         '@type': 'oa:Annotation',
@@ -122,10 +121,10 @@
           '@type': 'oa:Annotation',
           full: targetAnnotation['@id']
         },
-        layer: layerID
+        layerId: layerId
       };
       console.log('AnnotationEditor#createAnnotation anno: ' + JSON.stringify(annotation, null, 2));
-      console.log('AnnotationEditor#createAnnotation layer: ' + layerID);
+      console.log('AnnotationEditor#createAnnotation layer: ' + layerId);
       return annotation;
     },
     

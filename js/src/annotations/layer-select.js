@@ -30,10 +30,10 @@
       });
       
       this.select.change(function(event) {
-        var layerID = _this.select.val();
-        console.log('LAYER SELECTED: ' + layerID);
+        var layerId = _this.select.val();
+        console.log('LAYER SELECTED: ' + layerId);
         if (_this.changeCallback === 'function') {
-          _this.changeCallback(layerID);
+          _this.changeCallback(layerId);
         }
       });
     },

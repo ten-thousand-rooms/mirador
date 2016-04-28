@@ -23,7 +23,7 @@
       this.endpoint = this.canvasWindow.endpoint;
       this.element = jQuery(this.template({})).appendTo(this.appendTo);
       this.layerSelect = this.element.find('.annowin_select_layer');
-      this.currentLayerID = 'any';
+      this.currentLayerId = 'any';
       this.editorRow = this.element.find('.annowin_creator'); // placeholder for annotation editor for creation
       this.placeholder = this.element.find('.placeholder');
       this.placeholder.text('Loading...').show();
@@ -48,16 +48,16 @@
       layers = [{ '@id': 'any', label: 'Any' }].concat(layers);
       
       jQuery.each(layers, function (index, value) {
-        var layerID = value['@id'];
-        option = jQuery('<option/>').val(layerID).text(value.label);
-        if (layerID === _this.currentLayerID) {
+        var layerId = value['@id'];
+        option = jQuery('<option/>').val(layerId).text(value.label);
+        if (layerId === _this.currentLayerId) {
           option.attr('selected', true);
         }
         layerSelect.append(option);
       });
     },
     
-    updateList: function(layerID) {
+    updateList: function(layerId) {
       var _this = this;
       var annotationsList = this.canvasWindow.annotationsList;
       console.log('annotationsList:');
@@ -70,7 +70,7 @@
       
       jQuery.each(annotationsList, function(index, value) {
         try {
-          if (layerID === 'any' || layerID === value.layerID) {
+          if (layerId === 'any' || layerId === value.layerId) {
             ++count;
             _this.addAnnotation(value);
           }
@@ -216,8 +216,8 @@
       // When a new layer is selected
       this.layerSelect.change(function(event) {
         console.log('AnnotationWindow layer selected: ' + _this.layerSelect.val());
-        _this.currentLayerID = _this.layerSelect.val();
-        _this.updateList(_this.currentLayerID);
+        _this.currentLayerId = _this.layerSelect.val();
+        _this.updateList(_this.currentLayerId);
       });
       
       jQuery.subscribe('ANNOTATIONS_LIST_UPDATED', function(event, windowId, annotationsList) {

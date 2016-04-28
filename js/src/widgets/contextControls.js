@@ -59,7 +59,10 @@
       borderPicker.find('a.sp-cancel').on('click', function() {
         jQuery.data(document.body, 'borderColorPickerPop' + _this.windowId, null);
       });
-      jQuery._data(borderPicker.find(".sp-cancel")[0], "events").click.reverse();
+      // XXX seong - check if ".sp-cancel" exists (breaks when annotationCreation is false)
+      if (borderPicker.find('.sp-cancel').size() > 0) {
+        jQuery._data(borderPicker.find(".sp-cancel")[0], "events").click.reverse();
+      }
       borderPicker.find('a.sp-choose').on('click',function(){
         borderPicker.find('button.sp-choose').click();
       });
@@ -101,7 +104,12 @@
       fillPicker.find('a.sp-cancel').on('click', function() {
         jQuery.data(document.body, 'fillColorPickerPop' + _this.windowId, null);
       });
-      jQuery._data(fillPicker.find(".sp-cancel")[0], "events").click.reverse();
+      
+      // XXX seong
+      if (fillPicker.find('.sp-cancel').size() > 0) {
+        jQuery._data(fillPicker.find(".sp-cancel")[0], "events").click.reverse();
+      }
+      
       fillPicker.find('a.sp-choose').on('click',function(){
         fillPicker.find('button.sp-choose').click();
       });

@@ -97,18 +97,18 @@
     
       // XXX seong
       var _this = this;
-      function getLayer() {
+      function getLayerId() {
         var selectElem = _this.editorContainer.find('.layer_select');
         return selectElem.val();
       }
-      var layer = getLayer(); // XXX seong
+      var layerId = getLayerId(); // XXX seong
       
       return {
         "@context": "http://iiif.io/api/presentation/2/context.json",
         "@type": "oa:Annotation",
         "motivation": motivation,
         "resource": resource,
-        "layer": layer // XXX seong
+        "layerId": layerId // XXX seong
       };
     },
 
