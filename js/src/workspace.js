@@ -471,8 +471,6 @@
       // from the manifests panel in image mode,
       // or from the manifests panel in thumbnail mode.
       
-      console.log('addWindow windowConfig:');
-      console.dir(windowConfig);
       var isAnno = (windowConfig.windowType === 'annotations');
       
       var _this = this,

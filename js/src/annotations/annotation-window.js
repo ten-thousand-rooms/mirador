@@ -9,7 +9,7 @@
       id: null,
       slotAddress: null
     }, options);
-
+    
     this.init();
   };
 
@@ -17,11 +17,14 @@
     
     init: function () {
       console.log('AnnotationWindow#init this.appendTo: ' + this.appendTo);
+      var canCreate = this.canvasWindow.annotationCreationAvailable;
+      
       if (!this.id) {
         this.id = $.genUUID();
       }
       this.endpoint = this.canvasWindow.endpoint;
-      this.element = jQuery(this.template({})).appendTo(this.appendTo);
+      this.element = jQuery(this.template({ canCreate: canCreate }))
+        .appendTo(this.appendTo);
       this.layerSelect = this.element.find('.annowin_select_layer');
       this.currentLayerId = 'any';
       this.editorRow = this.element.find('.annowin_creator'); // placeholder for annotation editor for creation
@@ -88,7 +91,8 @@
       //console.log('AnnotationWindow#addAnnotation:');
       //console.dir(annotation);
       var content = annotation.resource[0].chars;
-      var annoHtml = this.annotationTemplate({content: content});
+      var canEdit = annotation.endpoint.userAuthorize('update', annotation);
+      var annoHtml = this.annotationTemplate({content: content, canEdit: canEdit});
       var annoElem = jQuery(annoHtml);
       var infoDiv = annoElem.find('.info_view');
       
@@ -191,11 +195,11 @@
       this.element.find('.annowin_create_anno').click(function(event) {
         event.stopPropagation();
         event.preventDefault();
-
+        
         if (_this.element.find('.annotation_editor').size() > 0) {
           return;
         }
-
+        
         var editor = new $.AnnotationEditor({
           parent: _this.editorRow,
           canvasWindow: _this.canvasWindow,
@@ -340,7 +344,9 @@
       '  </div>',
       '  <div class="annowin_layer_row">', 
       '    Layer: <select class="annowin_select_layer"></select>',
-      '    <a class="annowin_create_anno"><i class="fa fa-edit fa-lg fa-fw"></i></a>',
+      '    {{#if canCreate}}',
+      '      <a class="annowin_create_anno"><i class="fa fa-edit fa-lg fa-fw"></i></a>',
+      '    {{/if}}',
       '  </div>',
       '  <div class="annowin_creator"></div>',
       '  <div class="placeholder"></div>',
@@ -355,14 +361,16 @@
       '  <div class="normal_view">',
       '    <div class="to_right">',
       '      <a class="annowin_info"><i class="fa fa-info-circle"></i></a>',
-      '      <a class="mirador-btn annowin_item_menu" title="Actions"><i class="fa fa-chevron-circle-right"></i>',
-      '        <ul class="dropdown item_menu_dropdown">',
+      '      {{#if canEdit}}',
+      '        <a class="mirador-btn annowin_item_menu" title="Actions"><i class="fa fa-chevron-circle-right"></i>',
+      '          <ul class="dropdown item_menu_dropdown">',
 //      '          <li class="move_up"><i class="fa fa-caret-square-o-up fa-fw"></i> {{t "moveUp"}}</li>',
 //      '          <li class="move_down"><i class="fa fa-caret-square-o-down fa-fw"></i> {{t "moveDown"}}</li>',
-      '          <li class="edit"><i class="fa fa-edit fa-fw"></i> {{t "edit"}}</li>',
-      '          <li class="delete"><i class="fa fa-times fa-fw"></i> {{t "delete"}}</li>',
-      '        </ul>',
-      '      </a>',
+      '            <li class="edit"><i class="fa fa-edit fa-fw"></i> {{t "edit"}}</li>',
+      '            <li class="delete"><i class="fa fa-times fa-fw"></i> {{t "delete"}}</li>',
+      '          </ul>',
+      '        </a>',
+      '      {{/if}}',
       '    </div>',
       '    <div class="content">{{{content}}}</div>',
       '  </div>',
