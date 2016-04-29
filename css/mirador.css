@@ -1847,7 +1847,7 @@ a.mirador-icon-window-menu, a.mirador-icon-view-type {
 }
 .qtip-content {
   min-width: 275px;
-  max-height: 200px;
+  /*max-height: 200px;*/ /* XXX seong commented this out. Editor is cut off in iPad. */
   overflow: auto;
 }
 .annotation-tooltip {
