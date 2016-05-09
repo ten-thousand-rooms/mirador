@@ -42,7 +42,8 @@
       sidePanelAvailable: true,
       sidePanelOptions: {
         "toc" : true,
-        "annotations" : false
+        "annotations" : false,
+        "layers" : false
       },
       sidePanelVisible: true,
       annotationsAvailable: {
@@ -161,6 +162,46 @@
       templateData.currentFocusClass = _this.iconClasses[_this.currentFocus];
       templateData.showFullScreen = _this.fullScreenAvailable;
       _this.element = jQuery(this.template(templateData)).appendTo(_this.appendTo);
+      this.element.find('.manifest-info .mirador-tooltip').each(function() {
+        jQuery(this).qtip({
+          content: {
+            text: jQuery(this).attr('title'),
+          },
+          position: {
+            my: 'top center',
+            at: 'bottom center',
+            adjust: {
+              method: 'shift',
+              y: -11
+            },
+            container: _this.element,
+            viewport: true
+          },
+          style: {
+            classes: 'qtip-dark qtip-shadow qtip-rounded'
+          }
+        });
+      });
+      //TODO: this needs to switch the postion when it is a right to left manifest
+      this.element.find('.manifest-info .window-manifest-title').qtip({
+        content: {
+          text: jQuery(this).attr('title'),
+        },
+        position: {
+          my: 'top center',
+          at: 'bottom left',
+          adjust: {
+            method: 'shift',
+            x: 20,
+            y: 1
+          },
+          container: _this.element,
+          viewport: true
+        },
+        style: {
+          classes: 'qtip-dark qtip-shadow qtip-rounded'
+        }
+      });
       jQuery.publish('WINDOW_ELEMENT_UPDATED', {windowId: _this.id, element: _this.element});
 
       //clear any existing objects
@@ -211,10 +252,6 @@
       }
       this.init();
     },
-
-    // spawnInWorkspace: function() {
-
-    // },
 
     // reset whether BookView is available every time as a user might switch between paged and non-paged objects within a single slot/window
     removeBookView: function() {
@@ -492,6 +529,7 @@
       var _this = this,
       tocAvailable = _this.sidePanelOptions.toc,
       annotationsTabAvailable = _this.sidePanelOptions.annotations,
+      layersTabAvailable = _this.sidePanelOptions.layers,
       hasStructures = true;
 
       var structures = _this.manifest.getStructures();
@@ -506,6 +544,7 @@
               appendTo: _this.element.find('.sidePanel'),
               manifest: _this.manifest,
               canvasID: _this.currentCanvasID,
+              layersTabAvailable: layersTabAvailable,
               tocTabAvailable: tocAvailable,
               annotationsTabAvailable: annotationsTabAvailable,
               hasStructures: hasStructures
@@ -915,7 +954,7 @@
                                  '<a class="mirador-btn add-annotation-window" role="button" aria-label="Add an annotation window to the right" title="Add an annotation window">',
                                  '<i class="fa fa-lg fa-comments-o"></i>',
                                  '</a>',
-                                 '<a href="javascript:;" class="mirador-btn mirador-icon-view-type" role="button" aria-label="Change View Type">',
+                                 '<a href="javascript:;" class="mirador-btn mirador-icon-view-type" role="button" title="{{t "viewTypeTooltip"}}" aria-label="{{t "viewTypeTooltip"}}">',
                                  '<i class="{{currentFocusClass}}"></i>',
                                  '<i class="fa fa-caret-down"></i>',
                                  '<ul class="dropdown image-list">',
@@ -934,19 +973,21 @@
                                  '</ul>',
                                  '</a>',
                                  '{{#if MetadataView}}',
-                                 '<a href="javascript:;" class="mirador-btn mirador-icon-metadata-view" title="{{t "objectMetadata"}}" role="button" aria-label="View Information/Metadata about Object"><i class="fa fa-info-circle fa-lg fa-fw"></i></a>',
+                                 '<a href="javascript:;" class="mirador-btn mirador-icon-metadata-view mirador-tooltip" role="button" title="{{t "metadataTooltip"}}" aria-label="{{t "metadataTooltip"}}">',
+                                 '<i class="fa fa-info-circle fa-lg fa-fw"></i>',
+                                 '</a>',
                                  '{{/if}}',
                                  '{{#if showFullScreen}}',
-                                 '<a class="mirador-btn mirador-osd-fullscreen" role="button" aria-label="Toggle fullscreen">',
+                                 '<a class="mirador-btn mirador-osd-fullscreen mirador-tooltip" role="button" title="{{t "fullScreenWindowTooltip"}}" aria-label="{{t "fullScreenWindowTooltip"}}">',
                                  '<i class="fa fa-lg fa-fw fa-expand"></i>',
                                  '</a>',
                                  '{{/if}}',
                                  '</div>',
                                  '{{#if layoutOptions.close}}',
-                                 '<a href="javascript:;" class="mirador-btn mirador-close-window remove-object-option" title="{{t "close"}}"><i class="fa fa-times fa-lg fa-fw"></i></a>',
+                                 '<a href="javascript:;" class="mirador-btn mirador-close-window remove-object-option mirador-tooltip" title="{{t "closeTooltip"}}" aria-label="{{t "closeTooltip"}}"><i class="fa fa-times fa-lg fa-fw"></i></a>',
                                  '{{/if}}',
                                  '{{#if displayLayout}}',
-                                 '<a href="javascript:;" class="mirador-btn mirador-icon-window-menu" title="{{t "changeLayout"}}"><i class="fa fa-th-large fa-lg fa-fw"></i><i class="fa fa-caret-down"></i>',
+                                 '<a href="javascript:;" class="mirador-btn mirador-icon-window-menu" title="{{t "changeLayoutTooltip"}}" aria-label="{{t "changeLayoutTooltip"}}"><i class="fa fa-th-large fa-lg fa-fw"></i><i class="fa fa-caret-down"></i>',
                                  '<ul class="dropdown slot-controls">',
                                  '{{#if layoutOptions.newObject}}',
                                  '<li class="new-object-option"><i class="fa fa-refresh fa-lg fa-fw"></i> {{t "newObject"}}</li>',
@@ -968,9 +1009,9 @@
                                  '</a>',
                                  '{{/if}}',
                                  '{{#if sidePanel}}',
-                                 '<a href="javascript:;" class="mirador-btn mirador-icon-toc selected" title="View/Hide Table of Contents"><i class="fa fa-bars fa-lg fa-fw"></i></a>',
+                                 '<a href="javascript:;" class="mirador-btn mirador-icon-toc selected mirador-tooltip" title="{{t "sidePanelTooltip"}}" aria-label="{{t "sidePanelTooltip"}}"><i class="fa fa-bars fa-lg fa-fw"></i></a>',
                                  '{{/if}}',
-                                 '<h3 class="window-manifest-title">{{title}}</h3>',
+                                 '<h3 class="window-manifest-title" title="{{title}}" aria-label="{{title}}">{{title}}</h3>',
                                  '</div>',
                                  '<div class="content-container">',
                                  '{{#if sidePanel}}',
