@@ -938,12 +938,6 @@
       this.element.find('.add-slot-above').on('click', function() {
         jQuery.publish('SPLIT_UP_FROM_WINDOW', _this.id);
       });
-
-      // XXX seong
-      this.element.find('.add-annotation-window').on('click', function() {
-        console.log('ADD ANNOTATION WINDOW');
-        jQuery.publish('clicked.addAnnotationWindow', _this.id);
-      });
     },
 
     // template should be based on workspace type
@@ -951,9 +945,6 @@
                                  '<div class="window">',
                                  '<div class="manifest-info">',
                                  '<div class="window-manifest-navigation">',
-                                 '<a class="mirador-btn add-annotation-window" role="button" aria-label="Add an annotation window to the right" title="Add an annotation window">',
-                                 '<i class="fa fa-lg fa-comments-o"></i>',
-                                 '</a>',
                                  '<a href="javascript:;" class="mirador-btn mirador-icon-view-type" role="button" title="{{t "viewTypeTooltip"}}" aria-label="{{t "viewTypeTooltip"}}">',
                                  '<i class="{{currentFocusClass}}"></i>',
                                  '<i class="fa fa-caret-down"></i>',
