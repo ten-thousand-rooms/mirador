@@ -1,10 +1,12 @@
 describe('Window', function() {
   describe('Basic Operation', function() {
     beforeEach(function() {
+      this.eventEmitter = new Mirador.EventEmitter();
       this.appendTo = jQuery('<div/>');
       Mirador.viewer = {
         // all of this global state should be 
         // removed as soon as possible.
+        eventEmitter: this.eventEmitter,
         annotationEndpoints: [],
         workspace: {
           slots: []
@@ -21,35 +23,40 @@ describe('Window', function() {
         this.toggle = jasmine.createSpy();
         this.adjustHeight = jasmine.createSpy();
       });
-      this.window = new Mirador.Window({
-        state: new Mirador.SaveController(Mirador.DEFAULT_SETTINGS),
-        manifest: {
-          jsonLd: {
-            sequences: [
-              { viewingHint: 'paged',
-                canvases: [{
-                  '@id': ''
-                }]
-            }]
+      var state = new Mirador.SaveController(jQuery.extend(true, {}, Mirador.DEFAULT_SETTINGS, {eventEmitter:this.eventEmitter}));
+      this.window = new Mirador.Window(jQuery.extend(true, 
+        {}, 
+        state.getStateProperty('windowSettings'),
+        {
+          state: state,
+          eventEmitter: this.eventEmitter,
+          manifest: {
+            jsonLd: {
+              sequences: [
+                { viewingHint: 'paged',
+                  canvases: [{
+                    '@id': ''
+                  }]
+              }]
+            },
+            getCanvases: function() { return [{
+              '@id': '',
+              'images':[{
+              }]
+            }];
+            },
+            getAnnotationsListUrl: function() {
+              return false; // returning false for non-existent value is probably not a good practice?
+            },
+            getStructures: function() {
+              return [];
+            },
+            getVersion: function() {
+              return '1';
+            }
           },
-          getCanvases: function() { return [{
-            '@id': '',
-            'images':[{
-            }]
-          }];
-          },
-          getAnnotationsListUrl: function() {
-            return false; // returning false for non-existent value is probably not a good practice?
-          },
-          getStructures: function() {
-            return [];
-          },
-          getVersion: function() {
-            return '1';
-          }
-        },
-        appendTo: this.appendTo
-      });
+          appendTo: this.appendTo
+      }));
     });
 
     afterEach(function() {

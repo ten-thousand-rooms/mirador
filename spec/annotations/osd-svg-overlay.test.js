@@ -47,6 +47,7 @@ describe('Overlay', function() {
     this.canvas = jQuery('<canvas></canvas>');
     this.canvas.attr('id', 'draw_canvas_' + id);
     jasmine.getFixtures().set(this.canvas);
+    this.eventEmitter = new Mirador.EventEmitter();
     this.windowObjMock = {
       'windowId': id,
       'viewer': {
@@ -104,8 +105,8 @@ describe('Overlay', function() {
         return null;
       }
     };
-    var state = new Mirador.SaveController({});
-    this.overlay = new Mirador.Overlay(this.viewerMock, this.windowObjMock.viewer.id, this.windowObjMock.windowId, state);
+    var state = new Mirador.SaveController({eventEmitter: this.eventEmitter});
+    this.overlay = new Mirador.Overlay(this.viewerMock, this.windowObjMock.viewer.id, this.windowObjMock.windowId, state, this.eventEmitter);
   });
 
   afterEach(function() {
@@ -113,32 +114,32 @@ describe('Overlay', function() {
   });
 
   it('toggleDrawingTool', function() {
-    jQuery.publish('toggleDrawingTool.' + this.windowObjMock.windowId, [null]);
+    this.eventEmitter.publish('toggleDrawingTool.' + this.windowObjMock.windowId, [null]);
 
     expect(this.overlay.currentTool).toBeNull();
 
     this.pin = new Mirador.Pin();
     this.overlay.disabled = true;
-    jQuery.publish('toggleDrawingTool.' + this.windowObjMock.windowId, [this.pin.logoClass]);
+    this.eventEmitter.publish('toggleDrawingTool.' + this.windowObjMock.windowId, [this.pin.logoClass]);
 
     expect(this.overlay.currentTool).toBeNull();
 
     this.overlay.disabled = false;
-    jQuery.publish('toggleDrawingTool.' + this.windowObjMock.windowId, [this.pin.logoClass]);
+    this.eventEmitter.publish('toggleDrawingTool.' + this.windowObjMock.windowId, [this.pin.logoClass]);
 
     expect(this.overlay.currentTool).not.toBeNull();
     expect(this.overlay.currentTool.logoClass).toBe(this.pin.logoClass);
   });
 
   it('toggleDefaultDrawingTool', function() {
-    jQuery.publish('toggleDefaultDrawingTool.' + this.windowObjMock.windowId, []);
+    this.eventEmitter.publish('toggleDefaultDrawingTool.' + this.windowObjMock.windowId, []);
 
     expect(this.overlay.currentTool).toBeNull();
 
     this.overlay.disabled = false;
     this.rectangle = new Mirador.Rectangle();
     this.overlay.availableAnnotationDrawingTools = ['Rectangle', 'Pin'];
-    jQuery.publish('toggleDefaultDrawingTool.' + this.windowObjMock.windowId, []);
+    this.eventEmitter.publish('toggleDefaultDrawingTool.' + this.windowObjMock.windowId, []);
 
     expect(this.overlay.currentTool).not.toBeNull();
     expect(this.overlay.currentTool.logoClass).toBe(this.rectangle.logoClass);
@@ -146,7 +147,7 @@ describe('Overlay', function() {
 
   it('changeBorderColor', function() {
     var color = '#ff0000';
-    jQuery.publish('changeBorderColor.' + this.windowObjMock.windowId, [color]);
+    this.eventEmitter.publish('changeBorderColor.' + this.windowObjMock.windowId, [color]);
 
     expect(this.overlay.strokeColor).toBe(color);
 
@@ -163,7 +164,7 @@ describe('Overlay', function() {
     expect(this.overlay.hoveredPath.strokeColor.green).toBe(0);
     expect(this.overlay.hoveredPath.strokeColor.blue).toBe(0);
 
-    jQuery.publish('changeBorderColor.' + this.windowObjMock.windowId, [color]);
+    this.eventEmitter.publish('changeBorderColor.' + this.windowObjMock.windowId, [color]);
 
     expect(this.overlay.strokeColor).toBe(color);
     expect(this.overlay.hoveredPath.strokeColor.red).toBe(0);
@@ -174,7 +175,7 @@ describe('Overlay', function() {
   it('changeFillColor', function() {
     var color = '#00ff00';
     var alpha = 0.0;
-    jQuery.publish('changeFillColor.' + this.windowObjMock.windowId, [color, alpha]);
+    this.eventEmitter.publish('changeFillColor.' + this.windowObjMock.windowId, [color, alpha]);
 
     expect(this.overlay.fillColor).toBe(color);
     expect(this.overlay.fillColorAlpha).toBe(alpha);
@@ -194,7 +195,7 @@ describe('Overlay', function() {
     expect(this.overlay.hoveredPath.fillColor.blue).toBe(0);
     expect(this.overlay.hoveredPath.fillColor.alpha).toBe(1);
 
-    jQuery.publish('changeFillColor.' + this.windowObjMock.windowId, [color, alpha]);
+    this.eventEmitter.publish('changeFillColor.' + this.windowObjMock.windowId, [color, alpha]);
 
     expect(this.overlay.fillColor).toBe(color);
     expect(this.overlay.fillColorAlpha).toBe(alpha);
@@ -208,7 +209,7 @@ describe('Overlay', function() {
 
     expect(this.overlay.hoveredPath.fillColor).toBeUndefined();
 
-    jQuery.publish('changeFillColor.' + this.windowObjMock.windowId, [color, alpha]);
+    this.eventEmitter.publish('changeFillColor.' + this.windowObjMock.windowId, [color, alpha]);
 
     expect(this.overlay.hoveredPath.fillColor).toBeUndefined();
   });

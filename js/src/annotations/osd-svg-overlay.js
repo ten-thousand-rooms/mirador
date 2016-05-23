@@ -7,11 +7,11 @@
     return this.svgOverlayTools;
   };
 
-  OpenSeadragon.Viewer.prototype.svgOverlay = function(osdViewerId, windowId, state) {
-    return new $.Overlay(this, osdViewerId, windowId, state);
+  OpenSeadragon.Viewer.prototype.svgOverlay = function(osdViewerId, windowId, state, eventEmitter) {
+    return new $.Overlay(this, osdViewerId, windowId, state, eventEmitter);
   };
 
-  $.Overlay = function(viewer, osdViewerId, windowId, state) {
+  $.Overlay = function(viewer, osdViewerId, windowId, state, eventEmitter) {
     var drawingToolsSettings = state.getStateProperty('drawingToolsSettings'),
     availableAnnotationDrawingTools = state.getStateProperty('availableAnnotationDrawingTools');
     availableExternalCommentsPanel = state.getStateProperty('availableExternalCommentsPanel'); // XXX Seong
@@ -54,6 +54,7 @@
 
     var _this = this;
     this.state = state;
+    this.eventEmitter = eventEmitter;
     this.viewer.addHandler('animation', function() {
       _this.resize();
     });
@@ -66,7 +67,7 @@
     this.viewer.addHandler('update-viewport', function() {
       _this.resize();
     });
-    jQuery.subscribe('toggleDrawingTool.' + _this.windowId, function(event, tool) {
+    _this.eventEmitter.subscribe('toggleDrawingTool.' + _this.windowId, function(event, tool) {
       jQuery('#' + osdViewerId).parent().find('.hud-container').find('.draw-tool').removeClass('selected');
       if (_this.disabled) {
         jQuery('.qtip' + _this.windowId).qtip('hide');
@@ -81,7 +82,7 @@
         }
       }
     });
-    jQuery.subscribe('toggleDefaultDrawingTool.' + _this.windowId, function(event) {
+    _this.eventEmitter.subscribe('toggleDefaultDrawingTool.' + _this.windowId, function(event) {
       jQuery('#' + osdViewerId).parent().find('.hud-container').find('.draw-tool').removeClass('selected');
       if (_this.disabled) {
         jQuery('.qtip' + _this.windowId).qtip('hide');
@@ -102,14 +103,14 @@
         }
       }
     });
-    jQuery.subscribe('changeBorderColor.' + _this.windowId, function(event, color) {
+    _this.eventEmitter.subscribe('changeBorderColor.' + _this.windowId, function(event, color) {
       _this.strokeColor = color;
       if (_this.hoveredPath) {
         _this.hoveredPath.strokeColor = color;
         _this.paperScope.view.draw();
       }
     });
-    jQuery.subscribe('changeFillColor.' + _this.windowId, function(event, color, alpha) {
+    _this.eventEmitter.subscribe('changeFillColor.' + _this.windowId, function(event, color, alpha) {
       _this.fillColor = color;
       _this.fillColorAlpha = alpha;
       if (_this.hoveredPath && _this.hoveredPath.closed) {
@@ -118,22 +119,8 @@
         _this.paperScope.view.draw();
       }
     });
-    jQuery.subscribe('toggleBorderType.' + _this.windowId, function(event, type) {
-      if (type == 'solid') {
-        _this.dashArray = [];
-      } else if (type == 'dashed') {
-        _this.dashArray = [5, 5];
-      } else if (type == 'dotdashed') {
-        _this.dashArray = [2, 5, 7, 5];
-      }
-      if (_this.hoveredPath) {
-        _this.hoveredPath.dashArray = _this.dashArray;
-        _this.paperScope.view.draw();
-      }
-    });
-    jQuery.publish('initBorderType.' + _this.windowId, 'solid');
-    jQuery.publish('initBorderColor.' + _this.windowId, _this.strokeColor);
-    jQuery.publish('initFillColor.' + _this.windowId, [_this.fillColor, _this.fillColorAlpha]);
+    _this.eventEmitter.publish('initBorderColor.' + _this.windowId, _this.strokeColor);
+    _this.eventEmitter.publish('initFillColor.' + _this.windowId, [_this.fillColor, _this.fillColorAlpha]);
 
     this.resize();
     this.show();
@@ -196,6 +183,7 @@
     },
 
     onMouseDrag: function(event) {
+      var _this = this;
       if (!this.overlay.disabled) {
         event.stopPropagation();
         this.overlay.currentTool.onMouseDrag(event, this.overlay);
@@ -204,12 +192,13 @@
           'x': event.event.clientX,
           'y': event.event.clientY
         };
-        jQuery.publish('updateTooltips.' + this.overlay.windowId, [event.point, absolutePoint]);
+        _this.overlay.eventEmitter.publish('updateTooltips.' + this.overlay.windowId, [event.point, absolutePoint]);
       }
       this.overlay.paperScope.view.draw();
     },
 
     onMouseMove: function(event) {
+      var _this = this;
       this.overlay.cursorLocation = event.point;
       if (!this.overlay.disabled) {
         event.stopPropagation();
@@ -219,12 +208,13 @@
           'x': event.event.clientX,
           'y': event.event.clientY
         };
-        jQuery.publish('updateTooltips.' + this.overlay.windowId, [event.point, absolutePoint]);
+        _this.overlay.eventEmitter.publish('updateTooltips.' + this.overlay.windowId, [event.point, absolutePoint]);
       }
       this.overlay.paperScope.view.draw();
     },
 
     onMouseDown: function(event) {
+      var _this = this;
       if (this.overlay.disabled) {
         return;
       }
@@ -242,7 +232,7 @@
           prefix = prefix.substring(0, prefix.lastIndexOf('_') + 1);
           for (var j = 0; j < this.overlay.tools.length; j++) {
             if (this.overlay.tools[j].idPrefix == prefix) {
-              jQuery.publish('toggleDrawingTool.' + this.overlay.windowId, this.overlay.tools[j].logoClass);
+              _this.overlay.eventEmitter.publish('toggleDrawingTool.' + this.overlay.windowId, this.overlay.tools[j].logoClass);
               this.overlay.paperScope.project.activeLayer.selected = false;
               this.overlay.hoveredPath = null;
               this.overlay.segment = null;
@@ -508,23 +498,25 @@
     },
 
     disable: function() {
+      var _this = this;
       this.disabled = true;
-      jQuery.publish('hideDrawTools.' + this.windowId);
-      jQuery.publish('disableBorderColorPicker.' + this.windowId, this.disabled);
-      jQuery.publish('disableFillColorPicker.' + this.windowId, this.disabled);
-      jQuery.publish('enableTooltips.' + this.windowId);
+      _this.eventEmitter.publish('hideDrawTools.' + this.windowId);
+      _this.eventEmitter.publish('disableBorderColorPicker.' + this.windowId, this.disabled);
+      _this.eventEmitter.publish('disableFillColorPicker.' + this.windowId, this.disabled);
+      _this.eventEmitter.publish('enableTooltips.' + this.windowId);
       this.deselectAll();
     },
 
     enable: function() {
+      var _this = this;
       var setDefaultTool = this.disabled;
       this.disabled = false;
-      jQuery.publish('showDrawTools.' + this.windowId);
-      jQuery.publish('disableBorderColorPicker.' + this.windowId, this.disabled);
-      jQuery.publish('disableFillColorPicker.' + this.windowId, this.disabled);
-      jQuery.publish('disableTooltips.' + this.windowId);
+      _this.eventEmitter.publish('showDrawTools.' + this.windowId);
+      _this.eventEmitter.publish('disableBorderColorPicker.' + this.windowId, this.disabled);
+      _this.eventEmitter.publish('disableFillColorPicker.' + this.windowId, this.disabled);
+      _this.eventEmitter.publish('disableTooltips.' + this.windowId);
       if (setDefaultTool) {
-        jQuery.publish('toggleDefaultDrawingTool.' + this.windowId);
+        _this.eventEmitter.publish('toggleDefaultDrawingTool.' + this.windowId);
       }
     },
 
@@ -533,7 +525,8 @@
     },
 
     destroyCommentPanel: function() {
-      jQuery.publish('removeTooltips.' + this.windowId);
+      var _this = this;
+      _this.eventEmitter.publish('removeTooltips.' + this.windowId);
       jQuery(this.canvas).parents('.mirador-osd').qtip('destroy', true);
       this.commentPanel = null;
     },
@@ -590,6 +583,7 @@
       var annoTooltip = new $.AnnotationTooltip({
         targetElement: jQuery(this.canvas).parents('.mirador-osd'),
         state: this.state,
+        eventEmitter: this.eventEmitter,
         windowId: this.windowId
       });
       var _this = this;
@@ -607,7 +601,7 @@
           };
 
           //save to endpoint
-          jQuery.publish('annotationCreated.' + _this.windowId, [oaAnno, shape]);
+          _this.eventEmitter.publish('annotationCreated.' + _this.windowId, [oaAnno, shape]);
         },
         onCancel: function() {
           _this.clearDraftData();
