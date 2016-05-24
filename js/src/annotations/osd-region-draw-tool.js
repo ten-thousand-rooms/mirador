@@ -276,7 +276,7 @@
       });
 
       // XXX seong
-      jQuery.subscribe('ANNOTATION_FOCUSED', function(event, annoWinId, annotation) {
+      _this.eventEmitter.subscribe('ANNOTATION_FOCUSED', function(event, annoWinId, annotation) {
         _this.updateHighlights(annotation);
       });
     },
