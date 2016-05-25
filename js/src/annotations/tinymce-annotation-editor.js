@@ -30,17 +30,10 @@
         }
       }
       
-      // XXX seong
-      var layerSelectContainer = null;
-      if ($.viewer) { // if viewer has been created
-        layerSelectContainer = this.createLayerSelect();
-      }
-
       this.editorMarkup = this.editorTemplate({
         content: annoText,
         tags : tags.join(" "),
         windowId : _this.windowId,
-        layerSelect: layerSelectContainer ? layerSelectContainer.html() : '' // XXX seong
       });
     },
 
@@ -95,20 +88,11 @@
         "chars": resourceText
       });
     
-      // XXX seong
-      var _this = this;
-      function getLayerId() {
-        var selectElem = _this.editorContainer.find('.layer_select');
-        return selectElem.val();
-      }
-      var layerId = getLayerId(); // XXX seong
-      
       return {
         "@context": "http://iiif.io/api/presentation/2/context.json",
         "@type": "oa:Annotation",
         "motivation": motivation,
-        "resource": resource,
-        "layerId": layerId // XXX seong
+        "resource": resource
       };
     },
 
@@ -148,29 +132,7 @@
       });
     },
     
-    // XXX seong
-    createLayerSelect: function () {
-      var selectContainer = jQuery('<div/>');
-      var select = jQuery('<select/>').addClass('layer_select');
-      selectContainer.append(select);
-      var endpoint = $.viewer.workspace.getWindowById(this.windowId).endpoint;
-      var layers = endpoint.annotationLayers || [];
-      var option = jQuery('<option />')
-        .attr('selected', true)
-        .val(null)
-        .text('None');
-      
-      select.append(option);
-
-      jQuery.each(layers, function (index, value) {
-        var option = jQuery('<option/>').val(value['@id']).text(value.label);
-        select.append(option);
-      });
-      return selectContainer;
-    },
-
     editorTemplate: Handlebars.compile([
-      '{{{layerSelect}}}', // XXX seong
       '<textarea class="text-editor" placeholder="{{t "comments"}}…">{{#if content}}{{content}}{{/if}}</textarea>',
       '<input id="tags-editor-{{windowId}}" class="tags-editor" placeholder="{{t "addTagsHere"}}…" {{#if tags}}value="{{tags}}"{{/if}}>'
     ].join(''))
