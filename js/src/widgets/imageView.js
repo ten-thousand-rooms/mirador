@@ -70,6 +70,7 @@
         windowId: this.windowId,
         annotationLayerAvailable: this.annotationLayerAvailable,
         annotationCreationAvailable: this.annotationCreationAvailable,
+        annotationRefresh: this.annotationRefresh,
         annoEndpointAvailable: this.annoEndpointAvailable,
         showNextPrev : this.imagesList.length !== 1,
         availableTools: this.availableTools,
@@ -352,7 +353,13 @@
     },
 
     show: function() {
-      jQuery(this.element).show({effect: "fade", duration: 300, easing: "easeInCubic"});
+      jQuery(this.element).show({
+        effect: "fade", duration: 300, easing: "easeInCubic", complete: function () {
+          // Under firefox $.show() used under display:none iframe does not change the display.
+          // This is workaround for https://github.com/IIIF/mirador/issues/929
+          jQuery(this).css('display', 'block');
+        }
+      });
     },
 
     adjustWidth: function(className, hasClass) {

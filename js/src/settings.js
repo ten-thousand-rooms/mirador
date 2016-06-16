@@ -31,6 +31,7 @@
     },
 
     'manifests' : [],
+    'data' : [],
 
     'layout': '1x1',
 
@@ -38,10 +39,13 @@
                                 //only valid if no windowObjects have been initialized
                                 //if there are multiple slots, it will be bound to the first slot and the selected manifest will open in that slot
 
+    // whether or not to preserve the order of the manifests, as provided in the configuration, in the manifest listing page
+    'preserveManifestOrder' : false,
+
     //default window settings, but can be changed in Mirador configuration on initialization
     'windowSettings' : {
       "availableViews" : ['ThumbnailsView', 'ImageView', 'ScrollView', 'BookView'], //any subset removes others
-      "viewType" : 'ThumbnailsView', //one of [_'ThumbnailsView'_, 'ImageView', 'ScrollView', 'BookView'] - if using availableViews, must be in subset
+      "viewType" : 'ImageView', //one of [_'ThumbnailsView'_, 'ImageView', 'ScrollView', 'BookView'] - if using availableViews, must be in subset
       "bottomPanel" : true, //whether or not to make the bottom panel available in this window
       "bottomPanelVisible" : true, //whether or not to make the bottom panel visible in this window on load. This setting is dependent on bottomPanel being true
       "sidePanel" : true, //whether or not to make the side panel available in this window
@@ -57,6 +61,7 @@
                              only valid if annotationLayer is set to True and an annotationEndpoint is defined.
                              This setting does NOT affect whether or not a user can edit an individual annotation that has already been created.*/
       "annotationState" : 'annoOff', //[_'annoOff'_, 'annoOnCreateOff', 'annoOnCreateOn'] whether or not to turn on the annotation layer on window load
+      "annotationRefresh" : false, //whether or not to display the refresh icon for annotations
       "fullScreen" : true, //whether or not to make the window's fullScreen button visible to user
       "displayLayout" : true, //whether or not to display all layout options, removing individual menu options is separate
       //control individual menu items in layout menu. if "displayLayout" is false, these options won't be applied

@@ -55,18 +55,18 @@
     var _this = this;
     this.state = state;
     this.eventEmitter = eventEmitter;
-    this.viewer.addHandler('animation', function() {
+    var _thisResize = function() {
       _this.resize();
-    });
-    this.viewer.addHandler('open', function() {
-      _this.resize();
-    });
-    this.viewer.addHandler('animation-finish', function() {
-      _this.resize();
-    });
-    this.viewer.addHandler('update-viewport', function() {
-      _this.resize();
-    });
+    };
+    this.viewer.addHandler('animation', _thisResize);
+    this.viewer.addHandler('open', _thisResize);
+    this.viewer.addHandler('animation-finish', _thisResize);
+    this.viewer.addHandler('update-viewport', _thisResize);
+    this.viewer.addHandler('resize', _thisResize);
+    this.viewer.addHandler('rotate', _thisResize);
+    this.viewer.addHandler('constrain', _thisResize);
+    
+    
     _this.eventEmitter.subscribe('toggleDrawingTool.' + _this.windowId, function(event, tool) {
       jQuery('#' + osdViewerId).parent().find('.hud-container').find('.draw-tool').removeClass('selected');
       if (_this.disabled) {
@@ -281,10 +281,39 @@
     },
 
     resize: function() {
-      var viewportBounds = this.viewer.viewport.getBounds(true);
-      /* in viewport coordinates */
-      this.canvas.width = this.viewer.viewport.containerSize.x;
-      this.canvas.height = this.viewer.viewport.containerSize.y;
+      var viewportBounds = this.viewer.viewport.getBounds(true); /* in viewport coordinates */
+      var pointZero = this.viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(0, 0), true);
+
+      // maximum canvas size which should be less that limitations from each browser.
+      // http://stackoverflow.com/questions/6081483/maximum-size-of-a-canvas-element
+      var maxSize = 2048;
+      var realSize = {
+        width: this.viewer.viewport.containerSize.x / viewportBounds.width,
+        height: this.viewer.viewport.containerSize.x / viewportBounds.width / this.viewer.viewport.contentAspectX,
+        offsetX: 0,
+        offsetY: 0,
+        scale: 1
+      };
+      if (realSize.width > maxSize) {
+        realSize.scale = realSize.width / maxSize;
+        realSize.width /= realSize.scale;
+        realSize.height /= realSize.scale;
+        realSize.offsetX -= pointZero.x;
+        realSize.offsetY -= pointZero.y;
+        pointZero.x = 0;
+        pointZero.y = 0;
+      } else if (realSize.height > maxSize) {
+        realSize.scale = realSize.height / maxSize;
+        realSize.width /= realSize.scale;
+        realSize.height /= realSize.scale;
+        realSize.offsetX -= pointZero.x;
+        realSize.offsetY -= pointZero.y;
+        pointZero.x = 0;
+        pointZero.y = 0;
+      }
+
+      this.canvas.width = realSize.width;
+      this.canvas.height = realSize.height;
       var transform = 'translate(0px,0px)';
       this.canvas.style.WebkitTransform = transform;
       this.canvas.style.msTransform = transform;
@@ -388,12 +417,12 @@
     // creating shapes used for backward compatibility.
     // shape coordinates are viewport coordinates.
     createRectangle: function(shape, annotation) {
-      var scale = this.viewer.viewport.contentSize.x;
       var paperItems = [];
       var rect = new $.Rectangle();
+      var newShape = this.viewer.viewport.viewportToImageRectangle(shape);
       var initialPoint = {
-        'x': shape.x * scale,
-        'y': shape.y * scale
+        'x': newShape.x,
+        'y': newShape.y
       };
       var currentMode = this.mode;
       var currentPath = this.path;
@@ -407,8 +436,8 @@
       this.path = rect.createShape(initialPoint, this);
       var eventData = {
         'delta': {
-          'x': shape.width * scale,
-          'y': shape.height * scale
+          'x': newShape.width,
+          'y': newShape.height
         }
       };
       rect.onMouseDrag(eventData, this);
