@@ -28,7 +28,7 @@ describe('Overlay', function() {
         'segments': true,
         'tolerance': 0
       },
-      'onDrawFinish': function() {
+      onDrawFinish: function() {
       },
       getName: function(tool) {
         return tool.idPrefix + '1';
@@ -76,34 +76,16 @@ describe('Overlay', function() {
         'contentSize': {
           'x': 800,
           'y': 600
-        },
-        'getBounds': function() {
-          return {
-            'x': 0,
-            'y': 0,
-            'width': 800,
-            'height': 600
-          };
         }
       },
       'addHandler': function(eventName, functionBody) {
       }
     };
-    var state = {
-      'getStateProperty': function(val) {
-        if (val == 'drawingToolsSettings') {
-          return {
-            'doubleClickReactionTime': 300,
-            'strokeColor': 'deepSkyBlue',
-            'fillColor': 'deepSkyBlue',
-            'fillColorAlpha': 0.0
-          };
-        }
-        if (val == 'availableAnnotationDrawingTools') {
-          return [];
-        }
-        return null;
-      }
+    var drawingToolsSettings = {
+      'doubleClickReactionTime': 300,
+      'strokeColor': 'deepSkyBlue',
+      'fillColor': 'deepSkyBlue',
+      'fillColorAlpha': 0.0
     };
     var state = new Mirador.SaveController({eventEmitter: this.eventEmitter});
     this.overlay = new Mirador.Overlay(this.viewerMock, this.windowObjMock.viewer.id, this.windowObjMock.windowId, state, this.eventEmitter);

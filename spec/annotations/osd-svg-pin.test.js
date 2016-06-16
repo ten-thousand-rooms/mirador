@@ -20,14 +20,14 @@ describe('Pin', function() {
       'mode': mode,
       'path': path,
       'segment': segment,
-      'fixedShapeSize': 5,
+      'pinSize': 5,
       'hitOptions': {
         'fill': true,
         'stroke': true,
         'segments': true,
         'tolerance': 0
       },
-      'fitFixedSizeShapes': function() {
+      'fitPinSize': function() {
       },
       onDrawFinish: function() {
       },
