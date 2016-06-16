@@ -38,7 +38,6 @@
         segments: segments,
         name: overlay.getName(_this)
       });
-      shape.dashArray = overlay.dashArray;
       shape.strokeWidth = 1 / overlay.paperScope.view.zoom;
       shape.strokeColor = overlay.strokeColor;
       shape.fillColor = overlay.fillColor;

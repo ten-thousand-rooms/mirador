@@ -29,6 +29,9 @@
     this.data = this.state.getStateProperty('data');
     // get initial manifests
     this.element = this.element || jQuery('#' + this.id);
+    if (options.availableAnnotationDrawingTools && options.availableAnnotationDrawingTools.length > 0) {
+      this.availableAnnotationDrawingTools = options.availableAnnotationDrawingTools;
+    }
 
     if (this.data) {
       this.init();

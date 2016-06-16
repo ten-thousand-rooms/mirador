@@ -101,18 +101,11 @@
     ],
 
     'drawingToolsSettings': {
-      // Additional tool settings.
-      /**
-       *'Pin': {
-       *},
-       **/
       'doubleClickReactionTime': 300,
       'strokeColor': 'deepSkyBlue',
       'fillColor': 'deepSkyBlue',
       'fillColorAlpha': 0.0
     },
-
-    'availableExternalCommentsPanel': false,
 
     'availableCanvasTools': [
 

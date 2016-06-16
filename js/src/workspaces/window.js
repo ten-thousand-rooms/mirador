@@ -56,6 +56,7 @@
 
     this.init();
     this.bindAnnotationEvents();
+
   };
 
   $.Window.prototype = {

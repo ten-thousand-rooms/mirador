@@ -29,11 +29,11 @@
           annoText = _this.annotation.resource.chars;
         }
       }
-      
+
       this.editorMarkup = this.editorTemplate({
         content: annoText,
         tags : tags.join(" "),
-        windowId : _this.windowId,
+        windowId : _this.windowId
       });
     },
 
@@ -87,7 +87,6 @@
         "format": "text/html",
         "chars": resourceText
       });
-    
       return {
         "@context": "http://iiif.io/api/presentation/2/context.json",
         "@type": "oa:Annotation",
@@ -131,7 +130,7 @@
         }
       });
     },
-    
+
     editorTemplate: Handlebars.compile([
       '<textarea class="text-editor" placeholder="{{t "comments"}}…">{{#if content}}{{content}}{{/if}}</textarea>',
       '<input id="tags-editor-{{windowId}}" class="tags-editor" placeholder="{{t "addTagsHere"}}…" {{#if tags}}value="{{tags}}"{{/if}}>'

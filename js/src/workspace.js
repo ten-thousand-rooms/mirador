@@ -152,7 +152,7 @@
         containerId: _this.element.attr('id'),
         layoutDescription: _this.layoutDescription,
         configuration: null,
-        padding: 3
+        padding: 3 
       });
 
       var data = layout.filter( function(d) {
@@ -193,7 +193,7 @@
       // Exit
       divs.exit()
       .remove("div")
-      .each(function(d) {
+      .each(function(d) { 
         var slotMap = _this.slots.reduce(function(map, temp_slot) {
           if (d.id === temp_slot.slotID) {
             map[d.id] = temp_slot;
@@ -253,7 +253,7 @@
       }
 
       function mutateAndAdd(node, indexDifference) {
-        // Locally mutate the tree to accomodate a
+        // Locally mutate the tree to accomodate a 
         // sibling of another kind, transforming
         // both the target node and its parent.
         var newParent = _this.newNode(node.type, node.parent);
@@ -283,17 +283,17 @@
 
       if (node.type === 'column') {
         // Since it is a column:
-        //
+        // 
         // If adding to a side, simply
         // add a sibling.
         // Left means before, right means after.
         if (direction === 'r' || direction === 'l') {
           indexDifference = direction === 'r' ? 1 : 0;
           addSibling(node, indexDifference);
-        }
+        } 
         // If adding above or below, the
         // operation must be changed to mutating
-        // the structure.
+        // the structure. 
         // Up means before, Down means after.
         else {
           indexDifference = direction === 'd' ? 1 : 0;
@@ -302,16 +302,16 @@
       } else {
         // Since it is a row:
         //
-        // If adding to a side, mutate the
+        // If adding to a side, mutate the 
         // structure.
         // Left means before, right means after.
         if (direction === 'r' || direction === 'l') {
           indexDifference = direction === 'r' ? 1 : 0;
           mutateAndAdd(node, indexDifference);
-        }
+        } 
         // If adding above or below, the
         // operations must be switched to adding
-        // a sibling.
+        // a sibling. 
         // Up means before, Down means after.
         else {
           indexDifference = direction === 'd' ? 1 : 0;
@@ -321,9 +321,9 @@
 
       // Recalculate the layout.
       // The original hierarchical structure is
-      // accessible from the root node. Passing
-      // it back through the layout code will
-      // recalculate everything else needed for
+      // accessible from the root node. Passing 
+      // it back through the layout code will 
+      // recalculate everything else needed for 
       // the redraw.
       var root = jQuery.grep(_this.layout, function(node) { return !node.parent;})[0];
       _this.layoutDescription = root;
@@ -362,7 +362,7 @@
 
       if (node.parent.children.length === 2) {
         // de-mutate the tree without destroying
-        // the children of the remaining node,
+        // the children of the remaining node, 
         // which in this case means changing their
         // IDs.
         node.parent.children.splice(nodeIndex,1);
@@ -370,10 +370,10 @@
 
         remainingNode.parent.id = remainingNode.id;
         delete node.parent;
-      } else if (node.parent.children.length === 1) {
-      } else {
+      } else if (node.parent.children.length === 1) { 
+      } else { 
         // If the node is one of more than 2 siblings,
-        // simply splice it out of the parent's children
+        // simply splice it out of the parent's children 
         // array.
         node.parent.children.splice(nodeIndex, 1);
       }
@@ -413,15 +413,15 @@
 
     placeWindows: function() {
       // take the windows array and place
-      // as many windows into places as can
+      // as many windows into places as can 
       // fit.
       var _this = this,
       deletedWindows;
 
       if (_this.windows.length > _this.slots.length) {
-        // splice modifies the original array and
-        // returns the deleted items,
-        // so we can just perform a forEach on the
+        // splice modifies the original array and 
+        // returns the deleted items, 
+        // so we can just perform a forEach on the 
         // return value, and have the saveController
         // remove these windows in response to the event
         // (which otherwise it would not do).
@@ -433,7 +433,7 @@
           _this.eventEmitter.publish('windowRemoved', removedWindow.id);
         });
       }
-
+      
       _this.windows.forEach(function(window) {
         var slot = _this.getAvailableSlot();
         slot.window = window;
@@ -475,7 +475,7 @@
       // from the manifests panel in image mode,
       // or from the manifests panel in thumbnail mode.
       
-      var isAnno = (windowConfig.windowType === 'annotations');
+      var isAnno = (windowConfig.windowType === 'annotations'); // XXX seong
       
       var _this = this,
           newWindow,

@@ -18,7 +18,6 @@
       var _this = this;
       var shape = new overlay.paperScope.Path({
         segments: [initialPoint],
-        dashArray: overlay.dashArray,
         strokeWidth: 1 / overlay.paperScope.view.zoom,
         strokeColor: overlay.strokeColor,
         fullySelected: true,
