@@ -20,13 +20,23 @@
     },
     
     highlightShape: function (shape) {
-      shape.strokeColor = 'orange';
+      if (!shape._ym_oldStrokeColor) {
+        shape._ym_oldStrokeColor = shape.strokeColor;
+      }
+      if (!shape._ym_oldStrokeWdth) {
+        shape._ym_oldStrokeWidth = shape.strokeWidth;
+      }
+      shape.strokeColor = 'red';
       shape.strokeWidth = 10;
     },
     
     deHighlightShape: function (shape) {
-      shape.strokeColor = 'blue';
-      shape.strokeWidth = 1;
+      if (shape._ym_oldStrokeColor) {
+        shape.strokeColor = shape._ym_oldStrokeColor;
+      }
+      if (shape._ym_oldStrokeWidth) {
+        shape.strokeWidth = shape._ym_oldStrokeWidth;
+      }
     },
     
     getAnnotation: function (annotationID, successCallback, errorCallback) {
