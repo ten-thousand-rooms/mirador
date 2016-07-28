@@ -26,7 +26,7 @@
       if (!shape._ym_oldStrokeWdth) {
         shape._ym_oldStrokeWidth = shape.strokeWidth;
       }
-      shape.strokeColor = 'red';
+      shape.strokeColor = 'orange';
       shape.strokeWidth = 10;
     },
     
