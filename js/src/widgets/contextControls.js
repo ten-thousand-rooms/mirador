@@ -8,7 +8,6 @@
       mode: null,
       windowId: null,
       annoEndpointAvailable: false,
-      annotationCreationAvailable: true,
       eventEmitter: null
     }, options);
 
@@ -19,15 +18,52 @@
 
     init: function() {
       var _this = this;
-      this.element = jQuery(this.annotationTemplate({
-        tools : _this.availableAnnotationTools,
-        showEdit : this.annotationCreationAvailable,
-        showRefresh : this.annotationRefresh
-      })).appendTo(this.container.find('.mirador-osd-annotation-controls'));
 
-      this.setBorderFillColorPickers();
-      this.hide();
+      var annotationProperties = this.canvasControls.annotations;
+
+      if (annotationProperties.annotationLayer && this.annoEndpointAvailable) {
+        this.annotationElement = jQuery(this.annotationTemplate({
+          tools : _this.availableAnnotationTools,
+          showEdit : annotationProperties.annotationCreation,
+          showRefresh : annotationProperties.annotationRefresh
+        })).appendTo(this.container.find('.mirador-osd-annotation-controls'));
+        this.annotationElement.hide();
+        this.setQtips(this.annotationElement);
+        this.setBorderFillColorPickers();
+      }
+
+      if (this.canvasControls.imageManipulation.manipulationLayer) {
+        this.manipulationElement = jQuery(this.manipulationTemplate({
+          showRotate: this.canvasControls.imageManipulation.controls.rotate,
+          showBrightness: this.canvasControls.imageManipulation.controls.brightness,
+          showContrast: this.canvasControls.imageManipulation.controls.contrast,
+          showSaturate: this.canvasControls.imageManipulation.controls.saturate,
+          showGrayscale: this.canvasControls.imageManipulation.controls.grayscale,
+          showInvert: this.canvasControls.imageManipulation.controls.invert
+        })).appendTo(this.container.find('.mirador-manipulation-controls'));
+        this.setQtips(this.manipulationElement);
+        this.manipulationElement.hide();
+      }
+
       this.bindEvents();
+    },
+
+    setQtips: function(element) {
+      element.each(function() {
+        jQuery(this).qtip({
+          content: {
+            text: jQuery(this).attr('title'),
+          },
+          position: {
+            my: 'bottom center',
+            at: 'top center',
+            viewport: true
+          },
+          style: {
+            classes: 'qtip-dark qtip-shadow qtip-rounded'
+          }
+        });
+      });
     },
 
     setBorderFillColorPickers: function() {
@@ -61,25 +97,28 @@
           ["white", "cyan", "magenta", "yellow"]
         ]
       });
-      
+
       _this.container.find(".borderColorPicker").next(".sp-replacer").prepend("<i class='material-icons'>border_color</i>");
-      
+
       var borderPicker = jQuery('.borderColorPickerPop'+_this.windowId);
+
       borderPicker.find(".sp-cancel").html('<i class="fa fa-times-circle-o fa-fw"></i>Cancel');
       borderPicker.find(".sp-cancel").parent().append('<a class="sp-choose" href="#"><i class="fa fa-thumbs-o-up fa-fw"></i>Choose</a>');
       borderPicker.find('button.sp-choose').hide();
-      
+
       borderPicker.find('a.sp-cancel').on('click', function() {
         jQuery.data(document.body, 'borderColorPickerPop' + _this.windowId, null);
       });
+
       // XXX seong - check if ".sp-cancel" exists (breaks when annotationCreation is false)
       if (borderPicker.find('.sp-cancel').size() > 0) {
         jQuery._data(borderPicker.find(".sp-cancel")[0], "events").click.reverse();
       }
+      
       borderPicker.find('a.sp-choose').on('click',function(){
         borderPicker.find('button.sp-choose').click();
       });
-      
+
       _this.container.find(".fillColorPicker").spectrum({
         showInput: true,
         showInitial: true,
@@ -110,15 +149,15 @@
           ["white", "cyan", "magenta", "yellow"]
         ]
       });
-      
+
       _this.container.find(".fillColorPicker").next(".sp-replacer").prepend("<i class='material-icons'>format_color_fill</i>");
-      
+
       var fillPicker = jQuery('.fillColorPickerPop'+_this.windowId);
-      
+
       fillPicker.find(".sp-cancel").html('<i class="fa fa-times-circle-o fa-fw"></i>Cancel');
       fillPicker.find(".sp-cancel").parent().append('<a class="sp-choose" href="#"><i class="fa fa-thumbs-o-up fa-fw"></i>Choose</a>');
       fillPicker.find('button.sp-choose').hide();
-      
+
       fillPicker.find('a.sp-cancel').on('click', function() {
         jQuery.data(document.body, 'fillColorPickerPop' + _this.windowId, null);
       });
@@ -133,21 +172,29 @@
       });
     },
 
-    show: function() {
-      this.element.fadeIn("150");
+    annotationShow: function() {
+      this.annotationElement.fadeIn("150");
     },
 
-    hide: function() {
-      this.element.fadeOut("150");
+    annotationHide: function() {
+      this.annotationElement.fadeOut("150");
+    },
+
+    manipulationShow: function() {
+      this.manipulationElement.fadeIn("150");
+    },
+
+    manipulationHide: function() {
+      this.manipulationElement.fadeOut("150");
     },
 
     bindEvents: function() {
       var _this = this;
-      this.container.find('.mirador-osd-back').on('click', function() {
-        _this.element.remove();
-        _this.element = jQuery(_this.template()).appendTo(_this.container);
-        _this.bindEvents();
-      });
+      // this.container.find('.mirador-osd-back').on('click', function() {
+      //   _this.element.remove();
+      //   _this.element = jQuery(_this.template()).appendTo(_this.container);
+      //   _this.bindEvents();
+      // });
     },
 
     annotationTemplate: Handlebars.compile([
@@ -159,17 +206,17 @@
                                    '|',
                                    '</a>',
                                    '{{#each tools}}',
-                                   '<a class="mirador-osd-{{this}}-mode hud-control draw-tool">',
-                                   '<i class="material-icons">{{this}}</i>',
+                                   '<a class="mirador-osd-{{this.logoClass}}-mode hud-control draw-tool" title="{{t this.tooltip}}">',
+                                   '<i class="material-icons">{{this.logoClass}}</i>',
                                    '</a>',
                                    '{{/each}}',
                                    '<a class="hud-control draw-tool" style="color:#abcdef;">',
                                    '|',
                                    '</a>',
-                                   '<a class="hud-control draw-tool">',
+                                   '<a class="hud-control draw-tool" title="{{t "borderColorTooltip"}}">',
                                    '<input type="text" class="borderColorPicker"/>',
                                    '</a>',
-                                   '<a class="hud-control draw-tool">',
+                                   '<a class="hud-control draw-tool" title="{{t "fillColorTooltip"}}">',
                                    '<input type="text" class="fillColorPicker"/>',
                                    '</a>',
                                    '<a class="hud-control draw-tool" style="color:#abcdef;">',
@@ -186,7 +233,7 @@
                                      '<i class="fa fa-lg fa-refresh"></i>',
                                      '</a>',
                                    '{{/if}}',
-                                   '{{/if}}',
+                                   '{{/if}}'
                                    /*'<a class="mirador-osd-list hud-control">',
                                    '<i class="fa fa-lg fa-list"></i>',
                                    '</a>',*/
@@ -196,6 +243,51 @@
                                    /*'<a class="mirador-osd-rect-tool hud-control" role="button">',
                                    '<i class="fa fa-lg fa-gear"></i>',
                                    '</a>',*/
+    ].join('')),
+
+    manipulationTemplate: Handlebars.compile([
+                                   '{{#if showRotate}}',
+                                   '<a class="hud-control mirador-osd-rotate-right" title="{{t "rotateRightTooltip"}}">',
+                                   '<i class="fa fa-lg fa-rotate-right"></i>',
+                                   '</a>',
+                                   '<a class="hud-control mirador-osd-rotate-left" title="{{t "rotateLeftTooltip"}}">',
+                                   '<i class="fa fa-lg fa-rotate-left"></i>',
+                                   '</a>',
+                                   '{{/if}}',
+                                   '{{#if showBrightness}}',
+                                   '<a class="hud-control mirador-osd-brightness" title="{{t "brightnessTooltip"}}">',
+                                   '<i class="material-icons">wb_sunny</i>',
+                                   '<i class="fa fa-caret-down"></i>',
+                                   '<div class="mirador-osd-brightness-slider mirador-slider"/>',
+                                   '</a>',
+                                   '{{/if}}',
+                                   '{{#if showContrast}}',
+                                   '<a class="hud-control mirador-osd-contrast" title="{{t "contrastTooltip"}}">',
+                                   '<i class="material-icons">brightness_6</i>',
+                                   '<i class="fa fa-caret-down"></i>',
+                                   '<div class="mirador-osd-contrast-slider mirador-slider"/>',
+                                   '</a>',
+                                   '{{/if}}',
+                                   '{{#if showSaturate}}',
+                                   '<a class="hud-control mirador-osd-saturation" title="{{t "saturationTooltip"}}">',
+                                   '<i class="material-icons">gradient</i>',
+                                   '<i class="fa fa-caret-down"></i>',
+                                   '<div class="mirador-osd-saturation-slider mirador-slider"/>',
+                                   '</a>',
+                                   '{{/if}}',
+                                   '{{#if showGrayscale}}',
+                                   '<a class="hud-control mirador-osd-grayscale" title="{{t "grayscaleTooltip"}}">',
+                                   '<i class="material-icons">filter_b_and_w</i>',
+                                   '</a>',
+                                   '{{/if}}',
+                                   '{{#if showInvert}}',
+                                   '<a class="hud-control mirador-osd-invert" title="{{t "invertTooltip"}}">',
+                                   '<i class="material-icons">invert_colors</i>',
+                                   '</a>',
+                                   '{{/if}}',
+                                   '<a class="hud-control mirador-osd-reset" title="{{t "resetTooltip"}}">',
+                                   '<i class="fa fa-lg fa-refresh"></i>',
+                                   '</a>'
     ].join('')),
 
     // for accessibility, make sure to add aria-labels just like above

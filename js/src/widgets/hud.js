@@ -6,7 +6,6 @@
       element:   null,
       windowId:  null,
       annoState: null,
-      showAnnotations: true,
       annoEndpointAvailable: false,
       eventEmitter: null
     }, options);
@@ -16,23 +15,26 @@
 
   $.Hud.prototype = {
 
-    init: function() {   
-      this.createStateMachine();
+    init: function() {
+      this.createStateMachines();
 
+      var showAnno = typeof this.showAnno !== 'undefined' ? this.showAnno : this.canvasControls.annotations.annotationLayer,
+      showImageControls = typeof this.showImageControls !== 'undefined' ? this.showImageControls : this.canvasControls.imageManipulation.manipulationLayer;
       this.element = jQuery(this.template({
-        showNextPrev : this.showNextPrev, 
+        showNextPrev : this.showNextPrev,
         showBottomPanel : typeof this.bottomPanelAvailable === 'undefined' ? true : this.bottomPanelAvailable,
-        showAnno : this.annotationLayerAvailable
+        showAnno : showAnno,
+        showImageControls : showImageControls
       })).appendTo(this.appendTo);
 
-      if (this.annotationLayerAvailable && this.annoEndpointAvailable) {
+      if (showAnno || showImageControls) {
         this.contextControls = new $.ContextControls({
           element: null,
           container: this.element.find('.mirador-osd-context-controls'),
           mode: 'displayAnnotations',
           windowId: this.windowId,
-          annotationCreationAvailable: this.annotationCreationAvailable,
-          annotationRefresh: this.annotationRefresh,
+          canvasControls: this.canvasControls,
+          annoEndpointAvailable: this.annoEndpointAvailable,
           availableAnnotationTools: this.availableAnnotationTools,
           eventEmitter: this.eventEmitter
         });
@@ -45,18 +47,19 @@
       var _this = this;
     },
 
-    createStateMachine: function() {
-      //add more to these as AnnoState becomes more complex
+    createStateMachines: function() {
       var _this = this,
       duration = "200";
+
+      //add more to these as AnnoState becomes more complex
       //initial state is 'none'
       this.annoState = StateMachine.create({
         events: [
           { name: 'startup',  from: 'none',  to: 'annoOff' },
           { name: 'displayOn',  from: 'annoOff',  to: 'annoOnCreateOff' },
-          { name: 'refreshCreateOff',  from: 'annoOnCreateOff',  to: 'annoOnCreateOff' },          
+          { name: 'refreshCreateOff',  from: 'annoOnCreateOff',  to: 'annoOnCreateOff' },
           { name: 'createOn', from: ['annoOff','annoOnCreateOff'], to: 'annoOnCreateOn' },
-          { name: 'refreshCreateOn',  from: 'annoOnCreateOn',  to: 'annoOnCreateOn' },          
+          { name: 'refreshCreateOn',  from: 'annoOnCreateOn',  to: 'annoOnCreateOn' },
           { name: 'createOff',  from: 'annoOnCreateOn',    to: 'annoOnCreateOff' },
           { name: 'displayOff', from: ['annoOnCreateOn','annoOnCreateOff'], to: 'annoOff' }
         ],
@@ -67,11 +70,11 @@
               annotationState: to
             });
           },
-          ondisplayOn: function(event, from, to) { 
+          ondisplayOn: function(event, from, to) {
             _this.eventEmitter.publish('HUD_ADD_CLASS.'+_this.windowId, ['.mirador-osd-annotations-layer', 'selected']);
             if (_this.annoEndpointAvailable) {
-                  _this.contextControls.show();
-            } 
+                  _this.contextControls.annotationShow();
+            }
             _this.eventEmitter.publish('modeChange.' + _this.windowId, 'displayAnnotations');
             _this.eventEmitter.publish(('windowUpdated'), {
               id: _this.windowId,
@@ -92,7 +95,7 @@
             }
             if (_this.annoEndpointAvailable) {
               if (from === "annoOff") {
-                _this.contextControls.show();
+                _this.contextControls.annotationShow();
                 enableEditingAnnotations();
               } else {
                 enableEditingAnnotations();
@@ -110,7 +113,7 @@
               annotationState: to
             });
           },
-          oncreateOff: function(event, from, to) { 
+          oncreateOff: function(event, from, to) {
             _this.eventEmitter.publish('HUD_REMOVE_CLASS.'+_this.windowId, ['.mirador-osd-edit-mode', 'selected']);
             _this.eventEmitter.publish('modeChange.' + _this.windowId, 'displayAnnotations');
             _this.eventEmitter.publish(('windowUpdated'), {
@@ -118,16 +121,48 @@
               annotationState: to
             });
           },
-          ondisplayOff: function(event, from, to) { 
+          ondisplayOff: function(event, from, to) {
             if (_this.annoEndpointAvailable) {
               _this.eventEmitter.publish('HUD_REMOVE_CLASS.'+_this.windowId, ['.mirador-osd-edit-mode', 'selected']);
-              _this.contextControls.hide();
-            } 
+              _this.contextControls.annotationHide();
+            }
             _this.eventEmitter.publish('HUD_REMOVE_CLASS.'+_this.windowId, ['.mirador-osd-annotations-layer', 'selected']);
             _this.eventEmitter.publish('modeChange.' + _this.windowId, 'default');
             _this.eventEmitter.publish(('windowUpdated'), {
               id: _this.windowId,
               annotationState: to
+            });
+          }
+        }
+      });
+
+      this.manipulationState = StateMachine.create({
+        events: [
+          { name: 'startup',  from: 'none',  to: 'manipulationOff' },
+          { name: 'displayOn',  from: 'manipulationOff',  to: 'manipulationOn' },
+          { name: 'displayOff', from: 'manipulationOn', to: 'manipulationOff' }
+        ],
+        callbacks: {
+          onstartup: function(event, from, to) {
+            _this.eventEmitter.publish(('windowUpdated'), {
+              id: _this.windowId,
+              manipulationState: to
+            });
+          },
+          ondisplayOn: function(event, from, to) {
+            _this.eventEmitter.publish('HUD_ADD_CLASS.'+_this.windowId, ['.mirador-manipulation-toggle', 'selected']);
+            _this.contextControls.manipulationShow();
+            _this.eventEmitter.publish(('windowUpdated'), {
+              id: _this.windowId,
+              manipulationState: to
+            });
+          },
+          ondisplayOff: function(event, from, to) {
+            _this.contextControls.manipulationHide();
+            _this.eventEmitter.publish('HUD_REMOVE_CLASS.'+_this.windowId, ['.mirador-manipulation-toggle', 'selected']);
+            _this.eventEmitter.publish(('windowUpdated'), {
+              id: _this.windowId,
+              manipulationState: to
             });
           }
         }
@@ -146,6 +181,13 @@
                                   '<div class="mirador-osd-annotation-controls">',
                                   '<a class="mirador-osd-annotations-layer hud-control" role="button" aria-label="Toggle annotations">',
                                   '<i class="fa fa-lg fa-comments"></i>',
+                                  '</a>',
+                                  '</div>',
+                                 '{{/if}}',
+                                 '{{#if showImageControls}}',
+                                  '<div class="mirador-manipulation-controls">',
+                                  '<a class="mirador-manipulation-toggle hud-control" role="button" aria-label="Toggle image manipulation">',
+                                  '<i class="material-icons">tune</i>',
                                   '</a>',
                                   '</div>',
                                  '{{/if}}',
