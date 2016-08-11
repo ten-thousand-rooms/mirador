@@ -323,11 +323,14 @@
         jQuery.each(shapes, function (index, shape) {
           if (shape.data.annotation['@id'] === annotation['@id']) {
             $.annoUtil.highlightShape(shape);
+            shape.bringToFront();
           } else {
             $.annoUtil.deHighlightShape(shape);
+            shape.sendToBack();
           }
         });
       });
+      this.osdViewer.forceRedraw();
     }
 
   };
