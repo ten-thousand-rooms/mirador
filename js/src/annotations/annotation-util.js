@@ -26,7 +26,10 @@
       if (!shape._ym_oldStrokeWdth) {
         shape._ym_oldStrokeWidth = shape.strokeWidth;
       }
-      shape.set({ strokeColor: 'red', strokeWidth: 10 });
+      shape.set({ strokeColor: 'yellow',
+        strokeWidth: 30,
+        opacity: 1 
+      });
     },
     
     deHighlightShape: function (shape) {
@@ -36,6 +39,7 @@
       if (shape._ym_oldStrokeWidth) {
         shape.set({ strokeWidth: shape._ym_oldStrokeWidth });
       }
+      shape.opacity = 0;
     },
     
     getAnnotation: function (annotationID, successCallback, errorCallback) {
