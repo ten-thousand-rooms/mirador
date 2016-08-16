@@ -175,6 +175,12 @@
         _this.element.find('.draw-tool').hide();
       });
       //Related to Annotations HUD
+      
+      // XXX seong
+      _this.eventEmitter.subscribe('YM_DISPLAY_ON', function(event) {
+        _this.hud.annoState.displayOn(_this.element.find('.mirador-osd-annotations-layer'));
+        _this.eventEmitter.unsubscribe('YM_DISPLAY_ON');
+      });
     },
 
     bindEvents: function() {
