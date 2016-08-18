@@ -26,7 +26,8 @@
       if (!shape._ym_oldStrokeWdth) {
         shape._ym_oldStrokeWidth = shape.strokeWidth;
       }
-      shape.set({ strokeColor: 'yellow',
+      shape.set({ 
+        //strokeColor: 'yellow',
         strokeWidth: 30,
         opacity: 1 
       });
