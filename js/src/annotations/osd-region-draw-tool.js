@@ -292,7 +292,7 @@
 
       // XXX seong
       _this.eventEmitter.subscribe('ANNOTATION_FOCUSED', function(event, annoWinId, annotation) {
-        _this.updateHighlights(annotation);
+        $.yaleExt.updateHighlights.call(_this, annotation);
       });
     },
 
@@ -300,37 +300,6 @@
       return this.list.filter(function(annotation) {
         return annotation['@id'] === regionId;
       });
-    },
-    
-    // XXX seong
-    // Get paper.js shapes which are associated with the annotation.
-    getShapesForAnnotation: function(annotation) {
-      var out_shapes = [];
-      jQuery.each(this.annotationsToShapesMap, function(key, shapes) {
-        jQuery.each(shapes, function (index, shape) {
-          if (shape.data.annotation['@id'] === annotation['@id']) {
-            out_shapes.push(shape);
-          }
-        });
-      });
-      return out_shapes;
-    },
-
-    // XXX seong
-    // Highlight annotated area for annotation focused in annotation window.
-    updateHighlights: function(annotation) {
-      jQuery.each(this.annotationsToShapesMap, function(key, shapes) {
-        jQuery.each(shapes, function (index, shape) {
-          if (shape.data.annotation['@id'] === annotation['@id']) {
-            $.annoUtil.highlightShape(shape);
-            shape.bringToFront();
-          } else {
-            $.annoUtil.deHighlightShape(shape);
-            shape.sendToBack();
-          }
-        });
-      });
-      this.osdViewer.forceRedraw();
     }
 
   };

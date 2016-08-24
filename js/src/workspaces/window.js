@@ -294,7 +294,7 @@
         
         if ((annoState === 'annoOnCreateOff' || annoState === 'annoOnCreateOn') &&
             annotation.on['@type'] !== 'oa:Annotation') {
-          imageView.panToAnnotation(annotation);
+          $.yaleExt.panToAnnotation.call(imageView, annotation);
         }
       });
 
