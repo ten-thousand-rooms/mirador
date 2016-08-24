@@ -257,7 +257,7 @@
       }));
       
       // XXX seong
-      this.eventSubscriptions.push(_this.eventEmitter.subscribe('ANNOTATION_FOCUSED', function(event, annoWinId, annotation) {
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('ANNOTATION_FOCUSED', function(event, annoWinId, annotation) {
         $.yaleExt.updateHighlights.call(_this, annotation);
       }));
     },
