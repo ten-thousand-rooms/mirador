@@ -148,21 +148,14 @@
         _this.element.find(elementSelector).fadeOut(duration, complete);
       });
 
-      _this.eventEmitter.subscribe('SET_STATE_MACHINE_POINTER.' + _this.windowId, function(event) {
-        if (_this.hud.annoState.current === 'none') {
-          _this.hud.annoState.startup();
-        } else if (_this.hud.annoState.current === 'off') {
-          _this.hud.annoState.displayOn();
-        } else {
-          _this.hud.annoState.choosePointer();
-        }
-      });
-
       _this.eventEmitter.subscribe('DEFAULT_CURSOR.' + _this.windowId, function(event) {
         jQuery(_this.osd.canvas).css("cursor", "default");
       });
       _this.eventEmitter.subscribe('CROSSHAIR_CURSOR.' + _this.windowId, function(event) {
         jQuery(_this.osd.canvas).css("cursor", "crosshair");
+      });
+      _this.eventEmitter.subscribe('POINTER_CURSOR.' + _this.windowId, function(event) {
+        jQuery(_this.osd.canvas).css("cursor", "pointer");
       });
       //Related to Annotations HUD
       
