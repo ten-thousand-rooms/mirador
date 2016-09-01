@@ -146,6 +146,7 @@
       } catch (e) { // XXX seong
         console.log('OsdRegionDrawTool#parseRectangle caught: ' + e);
         console.log('rectString: ' + rectString);
+        console.dir(annotation);
         return [];
       }
     },
