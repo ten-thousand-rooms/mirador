@@ -453,9 +453,11 @@
       '<p>{{{annoText}}}</p>',
       '</div>',
       '<div id="tags-viewer-{{windowId}}" class="tags-viewer">',
+      /* XXX seong - don't wanna show tags
       '{{#each tags}}',
       '<span class="tag">{{this}}</span>',
       '{{/each}}',
+      */
       '</div>',
       '</div>',
       '{{/each}}',
