@@ -78,6 +78,12 @@
               jQuery(selector + ' a.save').click();
             });
 
+            // XXX seong
+            jQuery(selector + ' a.load').on("click", function(event) {
+              event.preventDefault();
+              var anno = $.getYmAnnotationSelector().open(_this.windowId);
+            });
+
             jQuery(selector + ' a.cancel').on("click", function(event) {
               event.preventDefault();
 
@@ -433,6 +439,7 @@
       '<div>',
       // need to add a delete, if permissions allow
       '<div class="button-container">',
+      '<a href="#load" class="load"><i class="fa fa-file-text-o fa-fw"></i>Load</a>', // XXX seong
       '<a href="#cancel" class="cancel"><i class="fa fa-times-circle-o fa-fw"></i>{{t "cancel"}}</a>',
       '<a href="#save" class="save"><i class="fa fa-database fa-fw"></i>{{t "save"}}</a>',
       '</div>',

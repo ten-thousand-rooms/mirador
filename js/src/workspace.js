@@ -108,24 +108,6 @@
       d3.select(window).on('resize', function(event) {
         _this.calculateLayout();
       });
-      
-      // XXX seong
-      jQuery.subscribe('clicked.addAnnotationWindow', function (event, windowId) {
-        var window = _this.getWindowById(windowId);
-        if (window) {
-          console.log('slot address: ' + window.slotAddress);
-          var slot = _this.getSlotFromAddress(window.slotAddress);
-          if (!_this.getAvailableSlot()) {
-            _this.split(slot, 'r', $.AnnotationWindow);
-          }
-          _this.addWindow({
-            windowType: 'annotations',
-            canvasWindow: window
-          });
-        } else {
-          console.log('sub[cliced.addAnnotationWindow]: Window could not be found for id = ' + windowId);
-        }
-      });
     },
 
     get: function(prop, parent) {
@@ -543,18 +525,6 @@
         // using the appropriate saving functions, etc. This obviates the need changing the
         // parent, slotAddress, setting a new ID, and so on.
       }
-    },
-
-    getWindowById: function (windowId) {
-      var windows = jQuery.grep(this.windows, function(window) {
-        return window.id === windowId;
-      });
-      var numWindows = windows.length;
-      if (numWindows > 1) {
-       console.log('Error: more than one (' + numWindows + ') found for id: ' + windowId);
-     }
-      return numWindows == 1 ? windows[0] : null;
     }
-
   };
 }(Mirador));
