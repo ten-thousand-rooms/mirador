@@ -55,7 +55,7 @@
           showRefresh : annotationProperties.annotationRefresh
         })).appendTo(this.container.find('.mirador-osd-annotation-controls'));
         this.annotationElement.hide();
-        this.setQtips(this.annotationElement);
+        this.setQtips(this.container.find('.mirador-osd-annotation-controls'));
         this.setBorderFillColorPickers();
       }
 
@@ -65,6 +65,7 @@
 
       if (this.canvasControls.imageManipulation.manipulationLayer) {
         this.manipulationElement = jQuery(this.manipulationTemplate({
+          filtersSupported: Modernizr.cssfilters,
           showRotate: this.canvasControls.imageManipulation.controls.rotate,
           showBrightness: this.canvasControls.imageManipulation.controls.brightness,
           showContrast: this.canvasControls.imageManipulation.controls.contrast,
@@ -72,7 +73,7 @@
           showGrayscale: this.canvasControls.imageManipulation.controls.grayscale,
           showInvert: this.canvasControls.imageManipulation.controls.invert
         })).appendTo(this.container.find('.mirador-manipulation-controls'));
-        this.setQtips(this.manipulationElement);
+        this.setQtips(this.container.find('.mirador-manipulation-controls'));
         this.manipulationElement.hide();
       }
 
@@ -80,7 +81,8 @@
     },
 
     setQtips: function(element) {
-      element.each(function() {
+      var _this = this;
+      element.find('a').each(function() {
         jQuery(this).qtip({
           content: {
             text: jQuery(this).attr('title'),
@@ -88,7 +90,8 @@
           position: {
             my: 'bottom center',
             at: 'top center',
-            viewport: true
+            viewport: true,
+            container: _this.qtipElement
           },
           style: {
             classes: 'qtip-dark qtip-shadow qtip-rounded'
@@ -230,7 +233,7 @@
 
     annotationTemplate: Handlebars.compile([
                                    '{{#if showEdit}}',
-                                   '<a class="mirador-osd-pointer-mode hud-control selected">',
+                                   '<a class="mirador-osd-pointer-mode hud-control selected" title="{{t "pointerTooltip"}}">',
                                    '<i class="fa fa-mouse-pointer"></i>',
                                    '</a>',
                                    '{{#each tools}}',
@@ -277,6 +280,8 @@
                                    '<i class="fa fa-lg fa-rotate-left"></i>',
                                    '</a>',
                                    '{{/if}}',
+
+                                '{{#if filtersSupported}}',
                                    '{{#if showBrightness}}',
                                    '<a class="hud-control mirador-osd-brightness" title="{{t "brightnessTooltip"}}">',
                                    '<i class="material-icons">wb_sunny</i>',
@@ -310,7 +315,8 @@
                                    '{{/if}}',
                                    '<a class="hud-control mirador-osd-reset" title="{{t "resetTooltip"}}">',
                                    '<i class="fa fa-lg fa-refresh"></i>',
-                                   '</a>'
+                                   '</a>',
+      '{{/if}}',
     ].join('')),
 
     // for accessibility, make sure to add aria-labels just like above

@@ -539,7 +539,6 @@
     },
 
     onMouseMove: function(event) {
-      this.overlay.cursorLocation = event.point;
       if (!this.overlay.disabled) {
         //We are in drawing mode
         if (this.overlay.paperScope.project.hitTest(event.point, this.overlay.hitOptions)) {
