@@ -79,9 +79,12 @@
             });
 
             // XXX seong
-            jQuery(selector + ' a.load').on("click", function(event) {
+            jQuery(selector + ' a.merge').on("click", function(event) {
               event.preventDefault();
-              var anno = $.getYmAnnotationSelector().open(_this.windowId);
+              var dfd = $.getYmAnnotationSelector().open(_this.windowId);
+              dfd.done(function(annotation) {
+                _this.activeEditor.loadAnnotation(annotation);
+              });
             });
 
             jQuery(selector + ' a.cancel').on("click", function(event) {
@@ -100,8 +103,22 @@
               if(!params.onSaveClickCheck()){
                 return;
               }
-              var annotation = _this.activeEditor.createAnnotation();
-              if (params.onAnnotationCreated) { params.onAnnotationCreated(annotation); }
+              
+              // XXX seong
+              //var annotation = _this.activeEditor.createAnnotation();
+              var annotation = null;
+              var isMerge = _this.activeEditor.getMode() === 'merge';
+              if (isMerge) {
+                annotation = _this.activeEditor.getLoadedAnnotation();
+                console.log('merge annotation: ');
+                console.dir(annotation);
+              } else {
+                console.log('save annotation: ');
+                console.dir(annotation);
+                annotation = _this.activeEditor.createAnnotation();
+              }
+              //if (params.onAnnotationCreated) { params.onAnnotationCreated(annotation); }
+              if (params.onAnnotationCreated) { params.onAnnotationCreated(annotation, isMerge); } // XXX seong
 
               api.destroy();
               _this.activeEditor = null;
@@ -439,8 +456,8 @@
       '<div>',
       // need to add a delete, if permissions allow
       '<div class="button-container">',
-      '<a href="#load" class="load"><i class="fa fa-file-text-o fa-fw"></i>Load</a>', // XXX seong
       '<a href="#cancel" class="cancel"><i class="fa fa-times-circle-o fa-fw"></i>{{t "cancel"}}</a>',
+      //'<a href="#merge" class="merge"><i class="fa fa-file-text-o fa-fw"></i>Load</a>', // XXX seong
       '<a href="#save" class="save"><i class="fa fa-database fa-fw"></i>{{t "save"}}</a>',
       '</div>',
       '</div>',

@@ -315,7 +315,9 @@
         _this.clearDraftData();
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.'+_this.windowId,function(event,oaAnno){
+      // XXX seong
+      //this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.'+_this.windowId,function(event,oaAnno){
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.'+_this.windowId,function(event,oaAnno,isMerge){
         //should remove the styles added for newly created annotation
         for(var i=0;i<_this.draftPaths.length;i++){
           if(_this.draftPaths[i].data && _this.draftPaths[i].data.newlyCreated){
@@ -327,7 +329,10 @@
         }
 
         var svg = _this.getSVGString(_this.draftPaths);
-        oaAnno.on = {
+        
+        // XXX seong
+        //oaAnno.on = {
+        var on = {
           "@type": "oa:SpecificResource",
           "full": _this.state.getWindowObjectById(_this.windowId).canvasID,
           "selector": {
@@ -339,8 +344,22 @@
               "@type": "sc:Manifest"
           }
         };
+        
+        // XXX seong
+        $.annoUtil.mergeTargets(oaAnno, on);
+        
+        if (isMerge) {
+          $.annoUtil.mergeTargets(oaAnno, on);
+        } else {
+          oaAnno.on = on;
+        }
+
         //save to endpoint
-        _this.eventEmitter.publish('annotationCreated.' + _this.windowId, [oaAnno]);
+        if (isMerge) { // XXX seong
+          _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
+        } else {
+          _this.eventEmitter.publish('annotationCreated.' + _this.windowId, [oaAnno]);
+        }
 
         // return to pointer mode
         _this.inEditOrCreateMode = false;
@@ -1025,8 +1044,10 @@
           onSaveClickCheck: function () {
             return _this.draftPaths.length;
           },
-          onAnnotationCreated: function(oaAnno) {
-            _this.eventEmitter.publish('onAnnotationCreated.'+_this.windowId,[oaAnno]);
+          //onAnnotationCreated: function(oaAnno) {
+          onAnnotationCreated: function(oaAnno, isMerge) { // XXX seong
+            //_this.eventEmitter.publish('onAnnotationCreated.'+_this.windowId,[oaAnno]);
+            _this.eventEmitter.publish('onAnnotationCreated.'+_this.windowId,[oaAnno,isMerge]); // XXX seong
           }
         });
         _this.annoEditorVisible = true;
