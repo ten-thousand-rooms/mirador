@@ -345,9 +345,6 @@
           }
         };
         
-        // XXX seong
-        $.annoUtil.mergeTargets(oaAnno, on);
-        
         if (isMerge) {
           $.annoUtil.mergeTargets(oaAnno, on);
         } else {
