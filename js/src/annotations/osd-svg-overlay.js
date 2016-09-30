@@ -315,9 +315,7 @@
         _this.clearDraftData();
       }));
 
-      // XXX seong
-      //this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.'+_this.windowId,function(event,oaAnno){
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.'+_this.windowId,function(event,oaAnno,isMerge){
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.'+_this.windowId,function(event,oaAnno){
         //should remove the styles added for newly created annotation
         for(var i=0;i<_this.draftPaths.length;i++){
           if(_this.draftPaths[i].data && _this.draftPaths[i].data.newlyCreated){
@@ -329,10 +327,7 @@
         }
 
         var svg = _this.getSVGString(_this.draftPaths);
-        
-        // XXX seong
-        //oaAnno.on = {
-        var on = {
+        oaAnno.on = {
           "@type": "oa:SpecificResource",
           "full": _this.state.getWindowObjectById(_this.windowId).canvasID,
           "selector": {
@@ -344,30 +339,20 @@
               "@type": "sc:Manifest"
           }
         };
-        
-        if (isMerge) {
-          $.annoUtil.mergeTargets(oaAnno, on);
-        } else {
-          oaAnno.on = on;
-        }
-
         //save to endpoint
-        if (isMerge) { // XXX seong
-          _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
-        } else {
-          _this.eventEmitter.publish('annotationCreated.' + _this.windowId, [oaAnno]);
-        }
+        _this.eventEmitter.publish('annotationCreated.' + _this.windowId, [oaAnno, function() {
+          // stuff that needs to be called after the annotation has been created on the backend
+          // return to pointer mode
+          _this.inEditOrCreateMode = false;
+          _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
 
-        // return to pointer mode
-        _this.inEditOrCreateMode = false;
-        _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
+          //reenable viewer tooltips
+          _this.eventEmitter.publish('enableTooltips.' + _this.windowId);
 
-        //reenable viewer tooltips
-        _this.eventEmitter.publish('enableTooltips.' + _this.windowId);
-
-        _this.clearDraftData();
-        _this.annoTooltip = null;
-        _this.annoEditorVisible = false;
+          _this.clearDraftData();
+          _this.annoTooltip = null;
+          _this.annoEditorVisible = false;
+        }]);
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreatedCanceled.'+_this.windowId,function(event,cancelCallback,immediate){
@@ -1040,10 +1025,8 @@
           onSaveClickCheck: function () {
             return _this.draftPaths.length;
           },
-          //onAnnotationCreated: function(oaAnno) {
-          onAnnotationCreated: function(oaAnno, isMerge) { // XXX seong
-            //_this.eventEmitter.publish('onAnnotationCreated.'+_this.windowId,[oaAnno]);
-            _this.eventEmitter.publish('onAnnotationCreated.'+_this.windowId,[oaAnno,isMerge]); // XXX seong
+          onAnnotationCreated: function(oaAnno) {
+            _this.eventEmitter.publish('onAnnotationCreated.'+_this.windowId,[oaAnno]);
           }
         });
         _this.annoEditorVisible = true;
