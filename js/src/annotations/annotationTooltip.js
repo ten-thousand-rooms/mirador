@@ -269,13 +269,14 @@
     addEditorEvents: function(api, viewerParams) {
       var _this = this;
       var selector = '#annotation-editor-' + _this.windowId;
-
+      
       jQuery(selector).on("submit", function(event) {
         event.preventDefault();
         jQuery(selector + ' a.save').click();
       });
-
-      jQuery(selector + ' a.save').on("click", function(event) {
+      
+      //jQuery(selector + ' a.save').on("click", function(event) { // XXX seong
+      jQuery(selector).on("click", 'a.save', function(event) { // XXX seong
         event.preventDefault();
         var display = jQuery(this).parents('.annotation-editor');
         var id = display.attr('data-anno-id');
@@ -286,7 +287,8 @@
 
       });
 
-      jQuery(selector + ' a.cancel').on("click", function(event) {
+      //jQuery(selector + ' a.cancel').on("click", function(event) { // XXX seong
+      jQuery(selector).on("click", 'a.cancel', function(event) { // XXX seong
         event.preventDefault();
         var display = jQuery(this).parents('.annotation-editor');
         var id = display.attr('data-anno-id');
