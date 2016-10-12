@@ -296,7 +296,9 @@
         
         if (annoState === 'pointer' &&
             annotation.on['@type'] !== 'oa:Annotation') {
+          $.yaleExt.zoomToAnnotation.call(imageView, annotation);
           $.yaleExt.panToAnnotation.call(imageView, annotation);
+          _this.eventEmitter.publish('ANNOTATION_FOCUSED_ZOOMED', [annoWinId, annotation]);
         }
       });
 
