@@ -91,12 +91,6 @@
         var shapeArray;
         var annotation = this.list[i];
 
-        // XXX seong
-        if (typeof annotation.on === 'object' && annotation.on['@type'] === 'oa:Annotation') {
-          // Annotation on annotation
-          return deferred;
-        }
-
         if (annotation.on && typeof annotation.on === 'object') {
           if (!annotation.on.selector) {
             continue;
