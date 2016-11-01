@@ -2035,6 +2035,10 @@ a.mirador-icon-window-menu, a.mirador-icon-view-type {
 .annotation-display.annotation-tooltip .button-container {
   text-align: right;
 }
+.annotation-display .show {
+  display: inline !important; /* XXX seong */
+}
+.annotation-display .show, /* XXX seong */
 .annotation-display .edit, .annotation-display .delete  {
   font-size: 12px;
   margin-left: 5px;
