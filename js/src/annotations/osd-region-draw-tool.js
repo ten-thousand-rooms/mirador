@@ -98,7 +98,7 @@
       for (var i = 0; i < this.list.length; i++) {
         var shapeArray;
         var annotation = this.list[i];
-
+        
         if (annotation.on && typeof annotation.on === 'object') {
           if (!annotation.on.selector) {
             continue;

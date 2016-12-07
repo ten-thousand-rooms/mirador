@@ -338,7 +338,7 @@
         _this.clearDraftData();
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.'+_this.windowId,function(event,oaAnno){
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.'+_this.windowId,function(event,oaAnno,isMerge){
         //should remove the styles added for newly created annotation
         for(var i=0;i<_this.draftPaths.length;i++){
           if(_this.draftPaths[i].data && _this.draftPaths[i].data.newlyCreated){
@@ -350,6 +350,12 @@
         }
 
         var svg = _this.getSVGString(_this.draftPaths);
+        
+        // XXX seong
+        if (isMerge) {
+          console.log('merge svg: ' + svg);
+        }
+        
         oaAnno.on = {
           "@type": "oa:SpecificResource",
           "full": _this.state.getWindowObjectById(_this.windowId).canvasID,
@@ -1055,8 +1061,8 @@
           onSaveClickCheck: function () {
             return _this.draftPaths.length;
           },
-          onAnnotationCreated: function(oaAnno) {
-            _this.eventEmitter.publish('onAnnotationCreated.'+_this.windowId,[oaAnno]);
+          onAnnotationCreated: function(oaAnno, isMerge) {
+            _this.eventEmitter.publish('onAnnotationCreated.'+_this.windowId,[oaAnno, isMerge]);
           }
         });
         _this.annoEditorVisible = true;
