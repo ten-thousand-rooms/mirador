@@ -308,6 +308,7 @@
 
       // XXX seong
       _this.eventEmitter.subscribe('ANNOTATION_FOCUSED', function(event, annoWinId, annotation) {
+        console.log('Window SUB ANNOTATION_FOCUSED annowinId: ', annoWinId, 'anno:', annotation);
         var imageView = _this.focusModules.ImageView;
         var annoState = imageView.hud.annoState.current;
         
