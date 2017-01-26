@@ -31,6 +31,7 @@
      * }
      */
     showEditor: function(params) {
+      console.log('AnnotationTooltip#showEditor params:', params); // XXX seong
       var _this = this;
       if (_this.activeEditor) { return; }
 

@@ -337,6 +337,7 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.'+_this.windowId,function(event,oaAnno,isMerge){
+        console.log('Overlay#listenForActions SUB onAnnotationCreated');
         //should remove the styles added for newly created annotation
         for(var i=0;i<_this.draftPaths.length;i++){
           if(_this.draftPaths[i].data && _this.draftPaths[i].data.newlyCreated){
@@ -374,6 +375,8 @@
           overlay: _this
         });
 
+        console.log('Overlay#listenForActions PUB annotationCreated'); // XXX seong
+        
         //save to endpoint
         _this.eventEmitter.publish('annotationCreated.' + _this.windowId, [oaAnno, function() {
           // stuff that needs to be called after the annotation has been created on the backend
@@ -1073,6 +1076,7 @@
             return _this.draftPaths.length;
           },
           onAnnotationCreated: function(oaAnno, isMerge) {
+            console.log('Overlay#onDrawFinish PUB onAnnotationCreated'); // XXX seong
             _this.eventEmitter.publish('onAnnotationCreated.'+_this.windowId,[oaAnno, isMerge]);
           }
         });

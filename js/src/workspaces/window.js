@@ -401,6 +401,7 @@
         var annoID;
         //first function is success callback, second is error callback
         _this.endpoint.create(oaAnno, function(data) {
+          console.log('Window#bindAnnotationEvents success callback from endpoint.create');
           //the success callback expects the OA annotation be returned
           annoID = String(data['@id']); //just in case it returns a number
           _this.annotationsList.push(data);
