@@ -104,17 +104,14 @@
               }
               
               // XXX seong
-              //var annotation = _this.activeEditor.createAnnotation();
               var annotation = null;
               var isMerge = _this.activeEditor.getMode() === 'merge';
               if (isMerge) {
                 annotation = _this.activeEditor.getLoadedAnnotation();
-                console.log('merge annotation: ');
-                console.dir(annotation);
+                console.log('AnnotationTooltip#showEditor merge annotation:', annotation);
               } else {
-                console.log('save annotation: ');
-                console.dir(annotation);
                 annotation = _this.activeEditor.createAnnotation();
+                console.log('AnnotationTooltip#showEditor save annotation:', annotation);
               }
               //if (params.onAnnotationCreated) { params.onAnnotationCreated(annotation); }
               if (params.onAnnotationCreated) { params.onAnnotationCreated(annotation, isMerge); } // XXX seong
