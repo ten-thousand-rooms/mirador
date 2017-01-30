@@ -1,7 +1,7 @@
 {
-  "name": "Mirador",
-  "version": "2.1.2",
-  "description": "Multi-window image viewer, a web-based tool to support researcher goals",
+  "name": "mirador-y",
+  "version": "0.1.0",
+  "description": "A fork of IIIF Mirador with extensions",
   "repository": {
     "type": "git",
     "url": "https://github.com/ProjectMirador/mirador"
