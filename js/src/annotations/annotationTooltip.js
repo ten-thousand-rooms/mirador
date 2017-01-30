@@ -44,7 +44,8 @@
       _this.activeEditor = new _this.editor(
         jQuery.extend({}, _this.editorOptions, {
           annotation: params.annotation,
-          windowId: _this.windowId
+          windowId: _this.windowId,
+          miradorDriven: true // XXX seong
         }));
       _this.activeEditorTip = _this.targetElement.qtip({
         content: {
@@ -246,6 +247,7 @@
       });
 
       jQuery(selector + ' a.edit').on("click", function(event) {
+        console.log('AnnotationTooltip#addViewerEvents edit clicked');
         event.preventDefault();
         var display = jQuery(this).parents('.annotation-display');
         var id = display.attr('data-anno-id');
@@ -441,7 +443,9 @@
       this.activeEditor = new this.editor(
         jQuery.extend({}, this.editorOptions, {
           annotation: oaAnno,
-          windowId: this.windowId
+          windowId: this.windowId,
+          miradorDriven: true, // XXX seong
+          mode: 'update' // XXX seong
         }));
       this.activeEditor.show('form#annotation-editor-'+this.windowId);
       jQuery(api.elements.tooltip).removeClass("qtip-viewer");
