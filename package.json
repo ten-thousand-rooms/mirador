@@ -44,7 +44,8 @@
   "scripts": {
     "start": "grunt serve",
     "test": "./node_modules/.bin/karma start ./karma.conf.js",
-    "travis": "./node_modules/grunt-cli/bin/grunt ci --verbose --force & npm run test"
+    "travis": "./node_modules/grunt-cli/bin/grunt ci --verbose --force & npm run test",
+    "dist" : "mkdir -p dist && rm -rf dist/* && cp -r build/* dist/"
   },
   "dependencies": {},
   "engine": "node < 7.0.0"

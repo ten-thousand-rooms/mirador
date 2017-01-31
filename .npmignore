@@ -1,3 +1,5 @@
+# XXX seong
+
 .grunt/
 _SpecRunner.html
 bkp
@@ -14,6 +16,6 @@ data/Harvard
 build/
 .idea/
 bower_components/
+*.tgz
 
-# XXX seong
-/dist
+/reports
