@@ -912,6 +912,11 @@
         _this.toggleMetadataOverlay(_this.viewType);
       });
 
+      // XXX seong
+      this.element.find('.mirador-icon-open-annowin').on('click', function() {
+        _this.eventEmitter.publish('YM_CLICKED_OPEN_ANNO_WINDOW', _this.id);
+      });
+
       this.element.find('.mirador-icon-toc').on('click', function() {
         _this.sidePanelVisibility(!_this.sidePanelVisible, '0.3s');
       });
@@ -946,6 +951,9 @@
                                  '<div class="window">',
                                  '<div class="manifest-info">',
                                  '<div class="window-manifest-navigation">',
+                                 '<a href="javascript:;" class="mirador-btn mirador-icon-open-annowin mirador-tooltip" role="button" title="Open Annotation Window" aria-label="Open AnnotationWindow">',
+                                 '<i class="fa fa-plus fa-lg fa-fw"></i>',
+                                 '</a>',
                                  '<a href="javascript:;" class="mirador-btn mirador-icon-view-type" role="button" title="{{t "viewTypeTooltip"}}" aria-label="{{t "viewTypeTooltip"}}">',
                                  '<i class="{{currentFocusClass}}"></i>',
                                  '<i class="fa fa-caret-down"></i>',
