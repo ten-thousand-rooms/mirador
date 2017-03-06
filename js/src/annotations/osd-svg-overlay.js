@@ -359,14 +359,13 @@
           }
         }
 
-<<<<<<< HEAD
         var svg = _this.getSVGString(_this.draftPaths);
 
         // XXX seong
         if (isMerge) {
           console.log('merge svg: ' + svg);
         }
-        
+
         oaAnno.on = {
           "@type": "oa:SpecificResource",
           "full": _this.state.getWindowObjectById(_this.windowId).canvasID,
@@ -380,8 +379,6 @@
           }
         };
 
-=======
->>>>>>> 2d7c9cb316ec517b702a6a3c283f2bb2d159141e
         var writeStrategy = new $.MiradorDualStrategy();
         writeStrategy.buildAnnotation({
           annotation: oaAnno,
@@ -390,7 +387,7 @@
         });
 
         console.log('Overlay#listenForActions PUB annotationCreated'); // XXX seong
-        
+
         //save to endpoint
         _this.eventEmitter.publish('annotationCreated.' + _this.windowId, [oaAnno, function() {
           // stuff that needs to be called after the annotation has been created on the backend
