@@ -70,7 +70,6 @@
         },
         events: {
           render: function(event, api) {
-            _this.eventEmitter.publish('annotationEditorAvailable.' + _this.windowId);
             _this.eventEmitter.publish('disableTooltips.' + _this.windowId);
 
             api.elements.tooltip.draggable();
@@ -124,6 +123,7 @@
             });
 
             _this.activeEditor.show(selector);
+            _this.eventEmitter.publish('annotationEditorAvailable.' + _this.windowId);
           }
 
         }
@@ -164,9 +164,6 @@
         style: {
           classes: 'qtip-bootstrap qtip-viewer',
           tip: false
-        },
-        show: {
-          event: false
         },
         hide: {
           fixed: true,
@@ -218,18 +215,18 @@
         event.preventDefault();
         var elem = this;
         new $.DialogBuilder(viewerParams.container).dialog({
-          message: i18n.t('deleteAnnotation'),
+          message: i18next.t('deleteAnnotation'),
           closeButton: false,
           buttons: {
             'no': {
-              label: i18n.t('no'),
+              label: i18next.t('no'),
               className: 'btn-default',
               callback: function() {
                 return;
               }
             },
             'yes': {
-              label: i18n.t('yes'),
+              label: i18next.t('yes'),
               className: 'btn-primary',
               callback: function() {
                 var display = jQuery(elem).parents('.annotation-display');
@@ -438,7 +435,6 @@
         'content.text': editorContainer,
         'hide.event': false
       });
-      _this.eventEmitter.publish('annotationEditorAvailable.' + this.windowId);
       //add rich text editor
       this.activeEditor = new this.editor(
         jQuery.extend({}, this.editorOptions, {
@@ -448,6 +444,7 @@
           mode: 'update' // XXX seong
         }));
       this.activeEditor.show('form#annotation-editor-'+this.windowId);
+      _this.eventEmitter.publish('annotationEditorAvailable.' + this.windowId);
       jQuery(api.elements.tooltip).removeClass("qtip-viewer");
       api.elements.tooltip.draggable();
       if (viewerParams.onEnterEditMode) {

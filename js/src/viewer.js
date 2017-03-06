@@ -44,12 +44,13 @@
       var _this = this;
 
       //initialize i18next
-      i18n.init({
+      i18next.use(i18nextXHRBackend).use(i18nextBrowserLanguageDetector).init({
         fallbackLng: 'en',
         load: 'unspecific',
         debug: false,
-        getAsync: true,
-        resGetPath: _this.state.getStateProperty('buildPath') + _this.state.getStateProperty('i18nPath')+'__lng__/__ns__.json'
+        backend: {
+          loadPath: _this.state.getStateProperty('buildPath') + _this.state.getStateProperty('i18nPath')+'{{lng}}/{{ns}}.json'
+        }
       }, _this.setupViewer.bind(_this));
       // because this is a callback, we need to bind "_this" to explicitly retain the calling context of this function (the viewer object instance));
     },
@@ -63,7 +64,7 @@
 
       //register Handlebars helper
       Handlebars.registerHelper('t', function(i18n_key) {
-        var result = i18n.t(i18n_key);
+        var result = i18next.t(i18n_key);
         return new Handlebars.SafeString(result);
       });
 

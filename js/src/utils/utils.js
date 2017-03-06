@@ -273,8 +273,9 @@
     return sanitizeHtml(dirty, {
       allowedTags: ['a', 'b', 'br', 'i', 'img', 'p', 'span', 'strong', 'em'],
       allowedAttributes: {
-        'a': ['href'],
-        'img': ['src', 'alt']
+        'a': ['href', 'target'],
+        'img': ['src', 'alt'],
+        'p': ['dir']
       }
     });
   };

@@ -3,10 +3,9 @@
 Mirador uses [node.js](http://nodejs.org/) and a build system to assemble, test, and manage the development resources. If you have never used these tools before, you may need to install them.
 
  1. Install Node, if you haven't already (available at the link above)  
- 2. Install the Grunt command line runner (if you haven't already); on the command line, run `npm install -g grunt-cli`  
- 3. Clone the mirador repository (if you haven't already done so above); `git clone https://github.com/ProjectMirador/mirador.git`
- 4. On the command line, go into the mirador folder
- 5. Install all dependencies with `npm install` and `bower install`. Run `npm start`
+ 1. Clone the mirador repository (if you haven't already done so above); `git clone https://github.com/ProjectMirador/mirador.git`
+ 1. On the command line, go into the mirador folder
+ 1. Install all dependencies with `npm install`. Run `npm start`
 
 `npm start` will run a local server that is available at `localhost:8000`.
 
@@ -21,7 +20,7 @@ Even small changes should follow the branching strategy outlined above, though t
 Mirador currently uses [gitbook](https://github.com/GitbookIO/gitbook) for its documentation. You can find the current documentation in the `docs` folder on any branch. The docs will be re-generated for the website when submitted, and kept up to date with the current master.
 Documentation updates are always welcome, and should be included with any fundamentally new changes. For general documentation submission, checkout the master branch and branch from it into a documentation branch. Add to the gitbook files stored in the `docs` directory.
 ### Updating and Running the Project
-Install all dependencies with `npm install` and `bower install`. Run `npm start`. This ensures that any new changes from the remote are picked up in your development build.
+Install all dependencies with `npm install`. Run `npm start`. This ensures that any new changes from the remote are picked up in your development build.
 
 Create a branch for your work:
 e.g.: `git checkout -b my-feature-branch` or `git checkout -b my-bug-fix`
@@ -31,7 +30,40 @@ Once you have built the necessary files and created a branch for your feature or
 
 Live interactive reloading of the browser each time a file is saved is enabled and used in the `npm start` command. Note that this will require middleware or a [livereload browser extension](http://feedback.livereload.com/knowledgebase/articles/86242-how-do-i-install-and-use-the-browser-extensions). 
 ### Submitting Your Contribution
-Since your 
+### Publishing a New Release
+
+#### 1. Ensure all Tests Pass
+All development occurs on the pinned development branch. Ensure that all tests with merged features are passing in travis before moving on to the release process. The release consists of merging the main development branch with master, therefore all changes must be fully integrated and functioning in the development branch. Do not create any new release branches until the current release has been merged into master.
+
+#### 2. Change version number in package.json
+If the version number included in the `package.json` does not already accurately reflect the version to be released, be sure to increment the number according to [SemVer](http://semver.org/) conventions. Bump the third number for a small patch that does not change or add any new functionality; bump the second number if the branch includes any new features that do not interfere with or change existing features; and bump the first ("major") version number if the changes to be released break or change the API for existing functionality.  
+
+#### 3. Merge the Release Branch into Master
+For example, if the current release branch is x.x.1, ensure that all feature branches (such as "fix_annotation_bug#1234") have been merged into the x.x.1 release branch as Github Pull Requests, and then merge the x.x.1 (which will be the default branch) into master through the Github interface (through a PR).
+
+#### 4. Create a New Local Tag
+After all new changes have been merged into master, checkout master locally, and create a git tag for the new version:
+ `git checkout master`
+ `git tag v[VERSION_NUMBER]`
+ This will give the current state of the project a name and freeze it in time.
+
+#### 5. Push Tag to Github
+Now push the tagged version to github (from master):
+ `git push --tags`
+
+ This will cause the new version to appear under the "releases" section of the github project page, and will allow npm to access it in  the next step.
+#### 6. Create Build and Add it to the New Release
+#### 7. Update the gh-pages Demo Instance to Show Off the Latest Features
+#### 8. Update Release Notes
+Using the github commit log, compile a bulleted list of the features and changes added to the new release.
+
+#### 9. Publish to NPM
+Assuming the commiter has access to the project's package management account on npm, publishing the most recent version requires   logging into npm on the command line.
+Then simply type `npm publish` to post the new package version to the registry.
+To configure your npm user locally, refer to the npm-adduser [documentation](https://docs.npmjs.com/cli/adduser).
+
+#### 10. Announce New Release on the Mailing Lists and Slack
+
 ### Design Review
 Design review can happen in one of two ways, though both ways start with an issue or issues describing the interaction requirements. Once an issue has been created for a new UI-heavy feature, whether or not a prototype is complete, the feature goes up for design review. This is generally a three-step process:
 1. An announcement about the proposed feature is put out to the Mirador-tech mailing list or on one of the bi-weekly calls with a link to the issue that documents the proposed UI feature, with links to any prototype examples or design references.
@@ -45,7 +77,7 @@ Mirador uses the node.js runtime for its development environment, and to bundle 
 #### The NPM package manager
 Dependencies are managed primarily with the NPM package manager, and releases are primarily distributed over npm. It is recommended that any new dependencies being added are tracked with a specific version in the `package.json` and installed with npm. The final build dependency is then copied into the `js/lib` directory for inclusion into Mirador. Only this copied final version of the dependency should be versioned (added to git).
 #### Javascript Resources
-#### Bower Package Manager
+#### Bower Package Manager [DEPRECATED]
 Some resources are managed with bower, but this is being phased out. It is recommended that no new dependency be added through bower unless it is truly unavailable on NPM.
 ### Project Management with Grunt
 [Grunt](http://gruntjs.com/) is a utility for managing repetitive tasks involved in the development process, such as building, linting, format-checking, and compressing files, running tests and generating coverage reports, and reloading the browser on file changes (for interactive feedback during feature development). A variety of tasks have been automated for developer convenience.
