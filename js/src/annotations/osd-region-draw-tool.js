@@ -101,22 +101,18 @@
         new $.MiradorDualStrategy()
       ];
 
+      // XXX seong protect parsing of each anno with try..catch
       for (var i = 0; i < this.list.length; i++) {
-        var shapeArray;
         var annotation = this.list[i];
-        if (typeof annotation === 'object' && annotation.on) {
-          var j;
-          for (j = 0; j < strategies.length; j++) {
-            if (strategies[j].isThisType(annotation)) {
-              shapeArray = strategies[j].parseRegion(annotation, _this);
-              break;
-            }
+        try {
+          var shapeArray = this.prepareShapeArray(annotation, strategies);
+          if (shapeArray.length > 0) {
+            _this.svgOverlay.restoreLastView(shapeArray);
+            _this.annotationsToShapesMap[annotation['@id']] = shapeArray;
           }
-          if (j === strategies.length) continue;
+        } catch(e) {
+          console.log('ERROR OsdRegionDrawTool#render anno:', annotation, 'error:', e);
         }
-
-        _this.svgOverlay.restoreLastView(shapeArray);
-        _this.annotationsToShapesMap[annotation['@id']] = shapeArray;
       }
 
       var windowElement = _this.state.getWindowElement(_this.windowId);
@@ -135,9 +131,21 @@
       _this.eventEmitter.publish('annotationsRendered.' + _this.windowId);
     },
 
+    prepareShapeArray: function(annotation, strategies) {
+      if (typeof annotation === 'object' && annotation.on) {
+        for (var i = 0; i < strategies.length; i++) {
+          if (strategies[i].isThisType(annotation)) {
+            shapeArray = strategies[i].parseRegion(annotation, this);
+            return shapeArray;
+          }
+        }
+      }
+      return [];
+    },
+
     parseRectangle: function(rectString, annotation) {
       try { // XXX seong
-        
+
       var shapeArray = rectString.split('=')[1].split(','),
       shape = {
         'x': parseInt(shapeArray[0]),
@@ -147,7 +155,7 @@
       };
 
       return this.svgOverlay.createRectangle(shape, annotation);
-      
+
       } catch (e) { // XXX seong
         console.log('OsdRegionDrawTool#parseRectangle caught: ' + e);
         console.log('rectString: ' + rectString);
@@ -280,7 +288,7 @@
         });
         _this.svgOverlay.paperScope.view.draw();
       }));
-      
+
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('refreshOverlay.' + _this.windowId, function (event) {
         _this.render();
       }));
