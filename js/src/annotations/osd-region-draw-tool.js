@@ -85,7 +85,6 @@
     },
 
     render: function () {
-
       if(this.parent.mode !== $.AnnotationsLayer.DISPLAY_ANNOTATIONS){
         return ;
       }
