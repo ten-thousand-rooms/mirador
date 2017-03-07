@@ -1,6 +1,6 @@
 {
   "name": "mirador-y",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A fork of IIIF Mirador with extensions",
   "repository": {
     "type": "git",
@@ -45,9 +45,8 @@
   "scripts": {
     "start": "./node_modules/.bin/grunt serve",
     "test": "./node_modules/.bin/karma start ./karma.conf.js",
-    "travis": "./node_modules/grunt-cli/bin/grunt ci --verbose --force & npm run test",
-    "dist": "mkdir -p dist && rm -rf dist/* && cp -r build/* dist/",
-    "travis": "./node_modules/.bin/grunt ci --verbose --force & npm run test"
+    "travis": "./node_modules/.bin/grunt ci --verbose --force & npm run test",
+    "dist": "mkdir -p dist && rm -rf dist/* && cp -r build/* dist/"
   },
   "dependencies": {
     "bootbox": "^4.4.0",
