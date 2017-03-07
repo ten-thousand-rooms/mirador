@@ -311,12 +311,16 @@
         console.log('Window SUB ANNOTATION_FOCUSED annowinId: ', annoWinId, 'anno:', annotation);
         var imageView = _this.focusModules.ImageView;
         var annoState = imageView.hud.annoState.current;
-        
+
         if (annoState === 'pointer' &&
             annotation.on['@type'] !== 'oa:Annotation') {
-          $.yaleExt.zoomToAnnotation.call(imageView, annotation);
-          $.yaleExt.panToAnnotation.call(imageView, annotation);
-          _this.eventEmitter.publish('ANNOTATION_FOCUSED_ZOOMED', [annoWinId, annotation]);
+          try {
+            $.yaleExt.zoomToAnnotation.call(imageView, annotation);
+            $.yaleExt.panToAnnotation.call(imageView, annotation);
+            _this.eventEmitter.publish('ANNOTATION_FOCUSED_ZOOMED', [annoWinId, annotation]);
+          } catch(e) {
+            console.log('ERROR Window#listenForActions SUB ANNOTATION_FOCUSED -', e);
+          }
         }
       });
 
