@@ -58,7 +58,11 @@
 
       this.request.done(function(jsonLd) {
         //_this.jsonLd = jsonLd; // XXX seong
-        _this.jsonLd = _this.processCopyright(jsonLd);
+        if (typeof _this.processCopyright === 'function') {
+          _this.jsonLd = _this.processCopyright(jsonLd);
+        } else {
+          _this.jsonLd = jsonLd;
+        }
       });
     },
     initFromInfoJson: function(infoJsonUrl) {

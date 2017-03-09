@@ -138,6 +138,7 @@
             return shapeArray;
           }
         }
+        console.log('ERROR OsdRegionDrawTool#prepareShapeArray no strategy matched', JSON.stringify(annotation.on, null, 2)); // XXX Seong
       }
       return [];
     },

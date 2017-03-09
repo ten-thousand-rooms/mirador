@@ -103,10 +103,12 @@
               if(!params.onSaveClickCheck()){
                 return;
               }
-              
+
               // XXX seong
               var annotation = null;
-              var isMerge = _this.activeEditor.getMode() === 'merge';
+              var isMerge = typeof _this.activeEditor.getMode === 'function' &&
+                _this.activeEditor.getMode() === 'merge';
+
               if (isMerge) {
                 annotation = _this.activeEditor.getLoadedAnnotation();
                 console.log('AnnotationTooltip#showEditor merge annotation:', annotation);
@@ -267,7 +269,7 @@
         });
         _this.eventEmitter.publish('modeChange.' + _this.windowId, 'editingAnnotation');
       });
-      
+
       // XXX seong
       jQuery(selector + ' a.show').on('click', function(event) {
         event.preventDefault();
@@ -280,12 +282,12 @@
     addEditorEvents: function(api, viewerParams) {
       var _this = this;
       var selector = '#annotation-editor-' + _this.windowId;
-      
+
       jQuery(selector).on("submit", function(event) {
         event.preventDefault();
         jQuery(selector + ' a.save').click();
       });
-      
+
       //jQuery(selector + ' a.save').on("click", function(event) { // XXX seong
       jQuery(selector).on("click", 'a.save', function(event) { // XXX seong
         event.preventDefault();
