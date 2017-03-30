@@ -159,11 +159,12 @@
         jQuery(_this.osd.canvas).css("cursor", "pointer");
       });
       //Related to Annotations HUD
-      
+
       // XXX seong
       _this.eventEmitter.subscribe('YM_DISPLAY_ON', function(event) {
-        _this.hud.annoState.displayOn(_this.element.find('.mirador-osd-annotations-layer'));
-        _this.eventEmitter.unsubscribe('YM_DISPLAY_ON');
+        if (_this.hud.annoState.current === 'off') {
+          _this.hud.annoState.displayOn(_this.element.find('.mirador-osd-annotations-layer'));
+        }
       });
     },
 
@@ -691,7 +692,7 @@
         _this.eventEmitter.publish('SET_CURRENT_CANVAS_ID.' + this.windowId, this.imagesList[prev]['@id']);
       }
     }
-    
+
   };
 
 }(Mirador));
