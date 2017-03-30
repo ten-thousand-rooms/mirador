@@ -1,6 +1,6 @@
 {
   "name": "mirador-y",
-  "version": "0.5.1+v2.3.0",
+  "version": "0.5.2",
   "description": "A fork of IIIF Mirador with extensions",
   "repository": {
     "type": "git",
