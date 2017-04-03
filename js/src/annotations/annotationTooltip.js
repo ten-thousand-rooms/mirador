@@ -420,6 +420,12 @@
         annotations : htmlAnnotations,
         windowId : this.windowId
       });
+
+      // XXX seong
+      if ($.yaleExt && typeof $.yaleExt.updateTooltipStyles === 'function') {
+        $.yaleExt.updateTooltipStyles();
+      }
+
       return template;
       //return combination of all of them
     },
