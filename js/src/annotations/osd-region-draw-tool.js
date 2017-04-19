@@ -197,6 +197,7 @@
           }
         }
       }
+      $.yaleExt.updateHighlightsMulti.call(this, annotations); // XXX seong
       this.svgOverlay.paperScope.view.draw();
       //if (_this.svgOverlay.availableExternalCommentsPanel) {
      //   _this.eventEmitter.publish('annotationMousePosition.' + _this.windowId, [annotations]);
