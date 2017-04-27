@@ -37,7 +37,8 @@
 
       var editorContainer = _this.editorTemplate({
         id : jQuery.isEmptyObject(params.annotation) ? "" : params.annotation['@id'],
-        windowId : _this.windowId
+        windowId : _this.windowId,
+        isCreate: true // XXX seong
       });
       var selector = '#annotation-editor-' + _this.windowId;
 
@@ -483,7 +484,9 @@
       // need to add a delete, if permissions allow
       '<div class="button-container">',
       '<a href="#cancel" class="cancel"><i class="fa fa-times-circle-o fa-fw"></i>{{t "cancel"}}</a>',
-      //'<a href="#merge" class="merge"><i class="fa fa-file-text-o fa-fw"></i>Load</a>', // XXX seong
+      '{{#if isCreate}}',
+        '<a href="#merge" class="merge"><i class="fa fa-file-text-o fa-fw"></i>Add To</a>', // XXX seong
+      '{{/if}}',
       '<a href="#save" class="save"><i class="fa fa-database fa-fw"></i>{{t "save"}}</a>',
       '</div>',
       '</div>',

@@ -32,7 +32,11 @@
       var oaAnno = options.annotation,
           win = options.window,
           overlay = options.overlay;
+
+      if (!options.preserveTarget) { // XXX seong
       oaAnno.on = [];
+      }
+
       jQuery.each(overlay.draftPaths, function(index, path) {
         // getSVGString expects an array, so insert each path into a new array
         var svg = overlay.getSVGString([path]),
@@ -65,7 +69,11 @@
       if (this.isThisType(annotation)) {
         var regionArray = [];
         jQuery.each(annotation.on, function(index, target) {
-          regionArray = regionArray.concat(osdRegionDrawTool.svgOverlay.parseSVG(target.selector.item.value, annotation));
+          try { // XXX seong
+            regionArray = regionArray.concat(osdRegionDrawTool.svgOverlay.parseSVG(target.selector.item.value, annotation));
+          } catch(e) {
+            console.log('ERROR MiradorDualStrategy#parseRegion failed to parse', annotation, 'skipping...');
+          }
         });
         return regionArray;
       }

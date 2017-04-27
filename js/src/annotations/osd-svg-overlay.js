@@ -349,7 +349,7 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.'+_this.windowId,function(event,oaAnno,isMerge){
-        console.log('Overlay#listenForActions SUB onAnnotationCreated');
+        console.log('Overlay#listenForActions SUB onAnnotationCreated', oaAnno, isMerge);
         //should remove the styles added for newly created annotation
         for(var i=0;i<_this.draftPaths.length;i++){
           if(_this.draftPaths[i].data && _this.draftPaths[i].data.newlyCreated){
@@ -361,11 +361,40 @@
 
         var svg = _this.getSVGString(_this.draftPaths);
 
-        // XXX seong
+        // XXX seong BEGIN
+        var target = {
+          "@type": "oa:SpecificResource",
+          "full": _this.state.getWindowObjectById(_this.windowId).canvasID,
+          "selector": {
+            "@type": "oa:SvgSelector",
+            "value": svg
+          },
+          "within": {
+            "@id": _this.state.getWindowObjectById(_this.windowId).loadedManifest,
+              "@type": "sc:Manifest"
+          }
+        };
         if (isMerge) {
-          console.log('merge svg: ' + svg);
+          if (oaAnno.on instanceof Array) {
+            console.log('A 0.1', oaAnno, oaAnno.on);
+            oaAnno.on.push(target);
+            console.log('A 0.2', oaAnno, oaAnno.on);
+          } else {
+            if (typeof oaAnno.on === 'object' && oaAnno.on.full) {
+              console.log('A 1.1', oaAnno);
+              oaAnno.on = [oaAnno.on, target];
+              console.log('A 2.1', oaAnno);
+            } else {
+              throw 'Invalid target to merge with: ' + String(oaAnno.on);
+            }
+          }
+          console.log('OsdSvgOverlay oaAnnotationCreated merged:', oaAnno);
+        } else {
+          oaAnno.on = target;
         }
+        // XXX seong END
 
+        /* XXX seong deleted
         oaAnno.on = {
           "@type": "oa:SpecificResource",
           "full": _this.state.getWindowObjectById(_this.windowId).canvasID,
@@ -378,15 +407,31 @@
               "@type": "sc:Manifest"
           }
         };
+        */
+
+        console.log('MERGED 1', oaAnno);
 
         var writeStrategy = new $.MiradorDualStrategy();
         writeStrategy.buildAnnotation({
           annotation: oaAnno,
           window: _this.state.getWindowObjectById(_this.windowId),
-          overlay: _this
+          overlay: _this,
+          preserveTarget: isMerge // XXX seong
         });
 
-        console.log('Overlay#listenForActions PUB annotationCreated'); // XXX seong
+        console.log('MERGED 2', oaAnno);
+
+        if (isMerge) { // XXX seong
+          console.log('Overlay#listenForActions PUB annotationUpdates', oaAnno); // XXX seong
+          _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno, function() {
+            _this.inEditOrCreateMode = false;
+            _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
+            _this.eventEmitter.publish('enableTooltips.' + _this.windowId);
+            _this.clearDraftData();
+            _this.annoTooltip = null;
+            _this.annoEditorVisible = false;
+          }]);
+        } else {
 
         //save to endpoint
         _this.eventEmitter.publish('annotationCreated.' + _this.windowId, [oaAnno, function() {
@@ -402,6 +447,8 @@
           _this.annoTooltip = null;
           _this.annoEditorVisible = false;
         }]);
+
+        }
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreatedCanceled.'+_this.windowId,function(event,cancelCallback,immediate){

@@ -312,8 +312,7 @@
         var imageView = _this.focusModules.ImageView;
         var annoState = imageView.hud.annoState.current;
 
-        if (annoState === 'pointer' &&
-            annotation.on['@type'] !== 'oa:Annotation') {
+        if (annoState === 'pointer') {
           try {
             $.yaleExt.zoomToAnnotation.call(imageView, annotation);
             $.yaleExt.panToAnnotation.call(imageView, annotation);
