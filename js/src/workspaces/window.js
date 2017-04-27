@@ -781,6 +781,7 @@
           break;
       }
       _this.eventEmitter.publish(('currentCanvasIDUpdated.' + _this.id), canvasID);
+      _this.eventEmitter.publish('YM_CANVAS_ID_SET', [_this.id, canvasID]); // XXX seong
     },
 
     replaceWindow: function(newSlotAddress, newElement) {
