@@ -314,8 +314,8 @@
 
         if (annoState === 'pointer') {
           try {
-            $.yaleExt.zoomToAnnotation.call(imageView, annotation);
-            $.yaleExt.panToAnnotation.call(imageView, annotation);
+            imageView.zoomToAnnotation(annotation);
+            imageView.panToAnnotation(annotation);
             _this.eventEmitter.publish('ANNOTATION_FOCUSED_ZOOMED', [annoWinId, annotation]);
           } catch(e) {
             console.log('ERROR Window#listenForActions SUB ANNOTATION_FOCUSED -', e);

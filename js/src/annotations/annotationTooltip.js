@@ -83,9 +83,8 @@
             // XXX seong
             jQuery(selector + ' a.merge').on("click", function(event) {
               event.preventDefault();
-              $.ym.openAnnotationExplorer(_this.windowId).then(function(annotation) {
-                _this.activeEditor.loadAnnotation(annotation);
-              });
+              _this.eventEmitter.publish('OPEN_ANNOTATION_SELECTOR',
+                [_this.windowId, _this.activeEditor]);
             });
 
             jQuery(selector + ' a.cancel').on("click", function(event) {

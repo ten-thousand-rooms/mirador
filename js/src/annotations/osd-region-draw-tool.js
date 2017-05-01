@@ -197,7 +197,7 @@
           }
         }
       }
-      $.yaleExt.updateHighlightsMulti.call(this, annotations); // XXX seong
+      this.updateHighlightsMulti(annotations); // XXX seong
       this.svgOverlay.paperScope.view.draw();
       //if (_this.svgOverlay.availableExternalCommentsPanel) {
      //   _this.eventEmitter.publish('annotationMousePosition.' + _this.windowId, [annotations]);
@@ -298,7 +298,7 @@
 
       // XXX seong
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('ANNOTATION_FOCUSED_ZOOMED', function(event, annoWinId, annotation) {
-        $.yaleExt.updateHighlights.call(_this, annotation);
+        _this.updateHighlights(annotation);
       }));
     },
 
