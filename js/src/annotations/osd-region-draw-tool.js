@@ -174,6 +174,7 @@
         segments: true
       };
       var hoverColor = this.state.getStateProperty('drawingToolsSettings').hoverColor;
+      var hoverWidthFactor = this.state.getStateProperty('drawingToolsSettings').hoverWidthFactor || 1.0; // xxx seong
       var annotations = [];
       for (var key in _this.annotationsToShapesMap) {
         if (_this.annotationsToShapesMap.hasOwnProperty(key)) {
@@ -181,11 +182,16 @@
           for (var idx = 0; idx < shapeArray.length; idx++) {
             var shapeTool = this.svgOverlay.getTool(shapeArray[idx]);
             var hoverWidth = shapeArray[idx].data.strokeWidth / this.svgOverlay.paperScope.view.zoom;
+            var hoverHitWidth = hoverWidthFactor * this.getDefaultStrokeWidth(shapeArray[idx]) / this.svgOverlay.paperScope.view.zoom; // XXX seong
             if (shapeArray[idx].hitTest(location, hitOptions)) {
               annotations.push(shapeArray[idx].data.annotation);
               if(shapeTool.onHover){
                 for(var k=0;k<shapeArray.length;k++){
-                  shapeTool.onHover(true,shapeArray[k],hoverWidth,hoverColor);
+                  //shapeTool.onHover(true,shapeArray[k],hoverWidth,hoverColor);
+                  var shape = shapeArray[k]; // XXX seong
+                  this.saveStrokeColor(shape); // XXX seong
+                  this.saveStrokeWidth(shape); // XXX seong
+                  shapeTool.onHover(true,shapeArray[k],hoverHitWidth,hoverColor); // XXX seong
                 }
               }
               break;
@@ -197,7 +203,7 @@
           }
         }
       }
-      this.updateHighlightsMulti(annotations); // XXX seong
+      this.updateShapesVisibility(annotations); // XXX seong
       this.svgOverlay.paperScope.view.draw();
       //if (_this.svgOverlay.availableExternalCommentsPanel) {
      //   _this.eventEmitter.publish('annotationMousePosition.' + _this.windowId, [annotations]);
