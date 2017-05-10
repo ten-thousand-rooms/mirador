@@ -370,6 +370,11 @@
         api.cache.contentUpdated = true;
         api.set({'content.text': this.getViewerContent(annotations)});
         _this.eventEmitter.publish('tooltipViewerSet.' + this.windowId);
+
+        // XXX seong - prevent other shapes from being highlighted while the cursor is on the tooltip
+        jQuery('.qtip-default, .qtip-content').mousemove(function(event) {
+          event.stopPropagation();
+        });
       }
     },
 
