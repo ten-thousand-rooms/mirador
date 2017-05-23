@@ -38,7 +38,7 @@
       var editorContainer = _this.editorTemplate({
         id : jQuery.isEmptyObject(params.annotation) ? "" : params.annotation['@id'],
         windowId : _this.windowId,
-        isCreate: false //true // XXX seong
+        isCreate: true // XXX seong
       });
       var selector = '#annotation-editor-' + _this.windowId;
 
