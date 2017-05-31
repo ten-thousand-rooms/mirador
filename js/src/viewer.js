@@ -53,6 +53,14 @@
         }
       }, _this.setupViewer.bind(_this));
       // because this is a callback, we need to bind "_this" to explicitly retain the calling context of this function (the viewer object instance));
+
+      // XXX seong
+      var i18nAdditions = this.state.currentConfig.i18nAdditions;
+      if (typeof i18nAdditions === 'object') {
+        jQuery.each(i18nAdditions, function(lang, resources) {
+          i18next.addResources(lang, 'translation', resources);
+        });
+      }
     },
 
     setupViewer: function() {
