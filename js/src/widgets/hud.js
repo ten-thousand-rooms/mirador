@@ -209,7 +209,8 @@
     template: $.Handlebars.compile([
                                  '<div class="mirador-hud">',
                                  '{{#if showNextPrev}}',
-                                 '<a class="mirador-osd-previous hud-control ">',
+                                 //'<a class="mirador-osd-previous hud-control ">',
+                                 '<a class="mirador-osd-previous hud-control" title="{{t "previousCanvas"}}">', // XXX seong
                                  '<i class="fa fa-3x fa-chevron-left "></i>',
                                  '</a>',
                                  '{{/if}}',
@@ -230,7 +231,8 @@
                                  '{{/if}}',
                                  '</div>',
                                  '{{#if showNextPrev}}',
-                                 '<a class="mirador-osd-next hud-control ">',
+                                 //'<a class="mirador-osd-next hud-control">',
+                                 '<a class="mirador-osd-next hud-control" title="{{t "nextCanvas"}}">', // XXX seong
                                  '<i class="fa fa-3x fa-chevron-right"></i>',
                                  '</a>',
                                  '{{/if}}',
