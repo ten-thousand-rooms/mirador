@@ -110,6 +110,7 @@
           dodgers.removeClass('bottom-panel-open');
           arrows.removeClass('bottom-panel-open');
         }
+        _this.hud.toggleBottomPanelQtip(visible); // XXX yale/seong
       });
 
       _this.eventEmitter.subscribe('fitBounds.' + _this.windowId, function(event, bounds) {

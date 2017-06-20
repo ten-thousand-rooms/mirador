@@ -42,7 +42,7 @@
           eventEmitter: this.eventEmitter
         });
       }
-
+      this.qtipExtra(); // XXX yale/seong
       this.listenForActions();
       this.bindEvents();
     },
@@ -210,7 +210,7 @@
                                  '<div class="mirador-hud">',
                                  '{{#if showNextPrev}}',
                                  //'<a class="mirador-osd-previous hud-control ">',
-                                 '<a class="mirador-osd-previous hud-control" title="{{t "previousCanvas"}}">', // XXX seong
+                                 '<a class="mirador-osd-previous hud-control" role="button" aria-label="{{t "previousCanvas"}}" title="{{t "previousCanvas"}}">', // XXX seong
                                  '<i class="fa fa-3x fa-chevron-left "></i>',
                                  '</a>',
                                  '{{/if}}',
