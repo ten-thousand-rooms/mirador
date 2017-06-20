@@ -204,7 +204,7 @@
       var viewerSelector = '#annotation-viewer-' + _this.windowId;
       jQuery(viewerSelector + ' a.delete').off("click");
       jQuery(viewerSelector + ' a.edit').off("click");
-      jQuery(viewerSelector + ' a.show').off("click"); // XXX seong
+      jQuery(viewerSelector + ' .text-viewer').off("click"); // XXX seong
       jQuery(editorSelector + ' a.save').off("click");
       jQuery(editorSelector + ' a.cancel').off("click");
     },
@@ -212,6 +212,15 @@
     addViewerEvents: function(api, viewerParams) {
       var _this = this;
       var selector = '#annotation-viewer-' + _this.windowId;
+
+      // XXX seong
+      jQuery(selector + ' .text-viewer').on('click', function(event) {
+        event.preventDefault();
+        var textElem = jQuery(this);
+        var displayElem = textElem.parent('.annotation-display');
+        var annoId = displayElem.attr('data-anno-id');
+        _this.eventEmitter.publish('YM_ANNOWIN_ANNO_SHOW', [_this.windowId, annoId]);
+      });
 
       jQuery(selector + ' a.delete').on("click", function(event) {
         event.preventDefault();
@@ -268,14 +277,6 @@
           "tooltip" : _this
         });
         _this.eventEmitter.publish('modeChange.' + _this.windowId, 'editingAnnotation');
-      });
-
-      // XXX seong
-      jQuery(selector + ' a.show').on('click', function(event) {
-        event.preventDefault();
-        var display = jQuery(this).parents('.annotation-display');
-        var annoId = display.attr('data-anno-id');
-        _this.eventEmitter.publish('YM_ANNOWIN_ANNO_SHOW', [_this.windowId, annoId]);
       });
     },
 
@@ -502,7 +503,7 @@
       '{{#each annotations}}',
       '<div class="annotation-display annotation-tooltip" data-anno-id="{{id}}">',
       '<div class="button-container">',
-        '<a href="#show" class="show"><i class="fa fa-eye fa-fw"></i>Show</a>', // XXX seong
+        //'<a href="#show" class="show"><i class="fa fa-eye fa-fw"></i>Show</a>', // XXX seong
         '{{#if showUpdate}}<a href="#edit" class="edit"><i class="fa fa-pencil-square-o fa-fw"></i>{{t "edit"}}</a>{{/if}}',
         '{{#if showDelete}}<a href="#delete" class="delete"><i class="fa fa-trash-o fa-fw"></i>{{t "delete"}}</a>{{/if}}',
       '</div>',
