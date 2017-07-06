@@ -308,23 +308,6 @@
         _this.sidePanelVisibility(visible, '0s');
       }));
 
-      // XXX seong
-      _this.eventEmitter.subscribe('ANNOTATION_FOCUSED', function(event, annoWinId, annotation) {
-        console.log('Window SUB ANNOTATION_FOCUSED annowinId: ', annoWinId, 'anno:', annotation);
-        var imageView = _this.focusModules.ImageView;
-        var annoState = imageView.hud.annoState.current;
-
-        if (annoState === 'pointer') {
-          try {
-            imageView.zoomToAnnotation(annotation);
-            imageView.panToAnnotation(annotation);
-            _this.eventEmitter.publish('ANNOTATION_FOCUSED_ZOOMED', [annoWinId, annotation]);
-          } catch(e) {
-            console.log('ERROR Window#listenForActions SUB ANNOTATION_FOCUSED -', e);
-          }
-        }
-      });
-
       _this.events.push(_this.eventEmitter.subscribe('SET_CURRENT_CANVAS_ID.' + this.id, function(event, canvasID) {
         if (typeof canvasID === "string") {
           _this.setCurrentCanvasID(canvasID);
@@ -778,7 +761,8 @@
       if (this.bottomPanel) { this.bottomPanel.updateFocusImages(this.focusImages); }
     },
 
-    setCurrentCanvasID: function(canvasID) {
+    //setCurrentCanvasID: function(canvasID) {
+    setCurrentCanvasID: function(canvasID, options) { // XXX yale/seong
       var _this = this;
       this.canvasID = canvasID;
       _this.eventEmitter.publish('removeTooltips.' + _this.id);
@@ -786,7 +770,7 @@
       while(_this.annotationsList.length > 0) {
         _this.annotationsList.pop();
       }
-      this.getAnnotations();
+      this.getAnnotations(options);
       switch(this.currentImageMode) {
         case 'ImageView':
           this.toggleImageView(this.canvasID);
@@ -797,7 +781,7 @@
         default:
           break;
       }
-      _this.eventEmitter.publish(('currentCanvasIDUpdated.' + _this.id), canvasID);
+      _this.eventEmitter.publish(('currentCanvasIDUpdated.' + _this.id), canvasID, options);
       _this.eventEmitter.publish('YM_CANVAS_ID_SET', [_this.id, canvasID]); // XXX seong
     },
 
@@ -829,7 +813,8 @@
        Merge all annotations for current image/canvas from various sources
        Pass to any widgets that will use this list
        */
-    getAnnotations: function() {
+    //getAnnotations: function() {
+    getAnnotations: function(params) { // XXX yale/seong
       //first look for manifest annotations
       var _this = this,
       urls = _this.manifest.getAnnotationsListUrls(_this.canvasID);
@@ -848,7 +833,14 @@
             });
             // publish event only if one url fetch is successful
             _this.annotationsList = _this.annotationsList.concat(annotations);
-            _this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
+            //_this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
+            _this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', { // XXX yale/seong
+              windowId: _this.id,
+              annotationsList: _this.annotationsList,
+              options: {
+                eventOriginatorType: params ? params.eventOriginatorType : null
+              }
+            });
           });
         });
       }
@@ -881,7 +873,14 @@
             }
             return true;
           });
-          _this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
+          //_this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
+          _this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', { // XXX yale/seong
+            windowId: _this.id,
+            annotationsList: _this.annotationsList,
+            options: {
+              eventOriginatorType: params ? params.eventOriginatorType : null
+            }
+          });
         });
       }
     },
