@@ -54,13 +54,16 @@
       }, _this.setupViewer.bind(_this));
       // because this is a callback, we need to bind "_this" to explicitly retain the calling context of this function (the viewer object instance));
 
-      // XXX seong
-      var i18nAdditions = this.state.currentConfig.i18nAdditions;
-      if (typeof i18nAdditions === 'object') {
-        jQuery.each(i18nAdditions, function(lang, resources) {
-          i18next.addResources(lang, 'translation', resources);
-        });
-      }
+      // XXX yale/seong
+      i18next.on('loaded', function(loaded) {
+        var i18nAdditions = _this.state.currentConfig.i18nAdditions;
+
+        if (i18nAdditions !== undefined && i18nAdditions !== null) {
+          jQuery.each(i18nAdditions, function(lang, resources) {
+            i18next.addResources(lang, 'translation', resources);
+          });
+        }
+      });
     },
 
     setupViewer: function() {
