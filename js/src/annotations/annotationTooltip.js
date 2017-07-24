@@ -219,7 +219,7 @@
         var textElem = jQuery(this);
         var displayElem = textElem.parent('.annotation-display');
         var annoId = displayElem.attr('data-anno-id');
-        _this.eventEmitter.publish('YM_ANNOWIN_ANNO_SHOW', [_this.windowId, annoId]);
+        _this.eventEmitter.publish('YM_IMAGE_WINDOW_TOOLTIP_ANNO_CLICKED', [_this.windowId, annoId]);
       });
 
       jQuery(selector + ' a.delete').on("click", function(event) {

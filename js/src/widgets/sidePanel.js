@@ -7,6 +7,7 @@
       manifest:          null,
       panelState:        {},
       tocTabAvailable:   null,
+      annotationTocTabAvailable: true, // XXX yale/seong
       // annotationsTabAvailable: false,
       // layersTabAvailable: null,
       // toolsTabAvailable: false,
@@ -25,6 +26,14 @@
 
       this.updateState({
         tabs : [
+          { // XXX yale/seong
+            name : 'annotationToc',
+            options : {
+              available: _this.annotationTocTabAvailable,
+              id:'annotationTocTab',
+              label:'Table of Contents'
+            }
+          },
           {
             name : 'toc',
             options : {
@@ -90,6 +99,15 @@
       if (this.tocTabAvailable) {
         new $.TableOfContents({
           structures: this.manifest.getStructures(),
+          appendTo: this.element.find('.tabContentArea'),
+          windowId: this.windowId,
+          canvasID: this.canvasID,
+          manifestVersion: this.manifest.getVersion(),
+          eventEmitter: this.eventEmitter
+        });
+      }
+      if (this.annotationTocTabAvailable) { // XXX yale/seong
+        new $.AnnotationTableOfContents({
           appendTo: this.element.find('.tabContentArea'),
           windowId: this.windowId,
           canvasID: this.canvasID,

@@ -517,6 +517,7 @@
       }
       var _this = this,
       tocAvailable = _this.sidePanelOptions.toc,
+      annotationTocAvailable = _this.sidePanelOptions.annotationTocTabAvailable,
       annotationsTabAvailable = _this.sidePanelOptions.annotations,
       layersTabAvailable = _this.sidePanelOptions.layersTabAvailable,
       searchTabAvailable = _this.sidePanelOptions.searchTabAvailable,
@@ -537,6 +538,7 @@
               canvasID: _this.canvasID,
               layersTabAvailable: layersTabAvailable,
               tocTabAvailable: tocAvailable,
+              annotationTocTabAvailable: annotationTocAvailable, // XXX yale/seong
               searchTabAvailable: searchTabAvailable,
               annotationsTabAvailable: annotationsTabAvailable,
               hasStructures: hasStructures
