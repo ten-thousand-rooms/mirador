@@ -160,13 +160,6 @@
         jQuery(_this.osd.canvas).css("cursor", "pointer");
       });
       //Related to Annotations HUD
-
-      // XXX seong
-      _this.eventEmitter.subscribe('YM_DISPLAY_ON', function(event) {
-        if (_this.hud.annoState.current === 'off') {
-          _this.hud.annoState.displayOn(_this.element.find('.mirador-osd-annotations-layer'));
-        }
-      });
     },
 
     bindEvents: function() {
