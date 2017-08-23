@@ -834,14 +834,7 @@
             });
             // publish event only if one url fetch is successful
             _this.annotationsList = _this.annotationsList.concat(annotations);
-            //_this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
-            _this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', { // XXX yale/seong
-              windowId: _this.id,
-              annotationsList: _this.annotationsList,
-              options: {
-                eventOriginatorType: params ? params.eventOriginatorType : null
-              }
-            });
+            _this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
           });
         });
       }
@@ -874,14 +867,7 @@
             }
             return true;
           });
-          //_this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
-          _this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', { // XXX yale/seong
-            windowId: _this.id,
-            annotationsList: _this.annotationsList,
-            options: {
-              eventOriginatorType: params ? params.eventOriginatorType : null
-            }
-          });
+          _this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
         });
       }
     },
