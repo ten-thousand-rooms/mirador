@@ -15,6 +15,3 @@ data/Harvard
 build/
 .idea/
 bower_components/
-
-# XXX seong
-/dist
