@@ -614,7 +614,6 @@
           if (selected) {
             shape = selected.find('.material-icons').html();
           }
-          console.log('X originalState: ' + originalState + ', annotationState: ' + _this.annotationState); // XXXX seong
           if (originalState === 'none') {
             _this.hud.annoState.startup();
           } else if (originalState === 'off' || _this.annotationState === 'off') {
