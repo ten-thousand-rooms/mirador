@@ -7,7 +7,7 @@
       manifest:          null,
       panelState:        {},
       tocTabAvailable:   null,
-      annotationTocTabAvailable: true, // XXX yale/seong
+      annotationTocTabAvailable: false, // XXX yale/seong
       // annotationsTabAvailable: false,
       // layersTabAvailable: null,
       // toolsTabAvailable: false,
