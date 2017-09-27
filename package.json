@@ -1,6 +1,6 @@
 {
   "name": "mirador-y",
-  "version": "2.4.0-2",
+  "version": "2.6.0-1",
   "description": "A fork of IIIF Mirador with extensions",
   "repository": {
     "type": "git",
@@ -8,6 +8,9 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
+    "eslint": "^3.17.1",
+    "eslint-config-airbnb-base": "^11.1.1",
+    "eslint-plugin-import": "^2.2.0",
     "gitbook": "3.2.0",
     "gitbook-cli": "2.3.0",
     "gitbook-plugin-search": "2.2.1",
@@ -27,6 +30,7 @@
     "grunt-git-describe": "^2.4.2",
     "grunt-githooks": "^0.3.1",
     "grunt-template-jasmine-istanbul": "^0.3.3",
+    "gruntify-eslint": "^3.1.0",
     "jasmine-core": "^2.6.4",
     "jasmine-jquery": "^2.0.5",
     "karma": "^1.7.0",
@@ -46,6 +50,8 @@
     "start": "./node_modules/.bin/grunt serve",
     "test": "./node_modules/.bin/karma start ./karma.conf.js",
     "travis": "./node_modules/.bin/grunt ci --verbose --force & npm run test",
+    "update_demo": "./bin/update_demo.sh",
+    "lint": "./node_modules/.bin/eslint js/src",
     "dist": "mkdir -p dist && rm -rf dist/* && cp -r build/* dist/",
     "update_demo": "./bin/update_demo.sh"
   },
@@ -58,6 +64,8 @@
     "i18next": "^4.2.0",
     "i18next-browser-languagedetector": "^1.0.1",
     "i18next-xhr-backend": "^1.4.2",
+    "iiif-evented-canvas": "0.0.1-alpha-5",
+    "iiif-layout-functions": "0.0.2-alpha",
     "javascript-state-machine": "^2.3.4",
     "jquery": "^3.2.1",
     "jquery-migrate": "^3.0.0",
@@ -65,9 +73,10 @@
     "jquery-ui-dist": "^1.12.1",
     "jquery.scrollto": "^1.4.12",
     "material-design-icons": "^3.0.1",
-    "mousetrap": "^1.6.1",
-    "openseadragon": "^2.3.0",
-    "paper": "^0.10.3",
+    "mousetrap": "^1.4.6",
+    "openseadragon": "^2.2.1",
+    "paper": "^0.10.2",
+    "select2": "^4.0.3",
     "spectrum-colorpicker": "^1.8.0",
     "tinymce": "^4.6.4",
     "urijs": "^1.18.10"
