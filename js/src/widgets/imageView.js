@@ -118,7 +118,9 @@
           dodgers.removeClass('bottom-panel-open');
           arrows.removeClass('bottom-panel-open');
         }
-        _this.hud.toggleBottomPanelQtip(visible); // XXX yale/seong
+        if (typeof _this.hud.toggleBottomPanelQtip === 'function') { // XXX yale/seong
+          _this.hud.toggleBottomPanelQtip(visible);
+        }
       });
 
       _this.eventEmitter.subscribe('fitBounds.' + _this.windowId, function(event, bounds) {

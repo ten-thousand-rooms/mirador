@@ -42,7 +42,9 @@
           eventEmitter: this.eventEmitter
         });
       }
-      this.qtipExtra(); // XXX yale/seong
+      if (typeof this.qtipExtra === 'function') { // XXX yale/seong
+        this.qtipExtra();
+      }
       this.listenForActions();
       this.bindEvents();
     },

@@ -399,7 +399,9 @@
         } else {
           annoText = annotation.resource.chars;
         }
-        annoText = $.yaleExt.truncate(annoText, 25); // XXX seong
+        if ($.yaleExt) { // XXX seong
+          annoText = $.yaleExt.truncate(annoText, 25);
+        }
         var username = "";
         if (annotation.annotatedBy && annotation.annotatedBy.name) {
           username = annotation.annotatedBy.name;

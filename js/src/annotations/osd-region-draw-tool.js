@@ -180,6 +180,7 @@
       };
       var hoverColor = this.state.getStateProperty('drawingToolsSettings').hoverColor;
       var hoverWidthFactor = this.state.getStateProperty('drawingToolsSettings').hoverWidthFactor || 1.0; // xxx seong
+
       var annotations = [];
       if (this.horizontallyFlipped) {
         location.x = currentCanvasModel.getBounds().width - location.x;
@@ -188,17 +189,25 @@
         if (_this.annotationsToShapesMap.hasOwnProperty(key)) {
           var shapeArray = _this.annotationsToShapesMap[key];
           for (var idx = 0; idx < shapeArray.length; idx++) {
+            var defaultStrokeWidth = shapeArray[idx].data.strokeWidth; //XXX yale seong
+            if (typeof this.getDefaultStrokeWidth === 'function') { //XXX yale seong
+              defaultStrokeWidth = this.getDefaultStrokeWidth(shapeArray[idx]);
+            }
             var shapeTool = this.svgOverlay.getTool(shapeArray[idx]);
             var hoverWidth = shapeArray[idx].data.strokeWidth / this.svgOverlay.paperScope.view.zoom;
-            var hoverHitWidth = hoverWidthFactor * this.getDefaultStrokeWidth(shapeArray[idx]) / this.svgOverlay.paperScope.view.zoom; // XXX seong
+            var hoverHitWidth = hoverWidthFactor * defaultStrokeWidth / this.svgOverlay.paperScope.view.zoom; // XXX seong
             if (shapeArray[idx].hitTest(location, hitOptions)) {
               annotations.push(shapeArray[idx].data.annotation);
               if(shapeTool.onHover){
                 for(var k=0;k<shapeArray.length;k++){
                   //shapeTool.onHover(true,shapeArray[k],hoverWidth,hoverColor);
                   var shape = shapeArray[k]; // XXX seong
-                  this.saveStrokeColor(shape); // XXX seong
-                  this.saveStrokeWidth(shape); // XXX seong
+                  if (typeof this.saveStrokeColor === 'function') { // XXX seong
+                    this.saveStrokeColor(shape);
+                  }
+                  if (typeof this.saveStrokeWidth === 'function') { // XXX seong
+                    this.saveStrokeWidth(shape);
+                  }
                   shapeTool.onHover(true,shapeArray[k],hoverHitWidth,hoverColor); // XXX seong
                 }
               }
@@ -211,7 +220,9 @@
           }
         }
       }
-      this.updateShapesVisibility(annotations); // XXX seong
+      if (typeof this.updateShapesVisibility === 'function') { // XXX seong
+        this.updateShapesVisibility(annotations);
+      }
       this.svgOverlay.paperScope.view.draw();
       //if (_this.svgOverlay.availableExternalCommentsPanel) {
      //   _this.eventEmitter.publish('annotationMousePosition.' + _this.windowId, [annotations]);
