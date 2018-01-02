@@ -16,7 +16,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-githooks');
 
   // ----------
-  var distribution = 'build/mirador/mirador.js',
+  var distribution = 'build/mirador/mirador.min.js',
   minified = 'build/mirador/mirador.min.js',
   releaseRoot = '../site-build/built-mirador/',
 
@@ -102,7 +102,7 @@ module.exports = function(grunt) {
           'css/material-icons.css',
           'bower_components/simplePagination.js/simplePagination.css'
         ],
-        dest: 'build/mirador/css/mirador-combined.css'
+        dest: 'build/mirador/css/mirador-combined.min.css'
       }
     },
 
@@ -286,7 +286,7 @@ module.exports = function(grunt) {
   });
   // ----------
   // Lint task
-  grunt.registerTask('lint', ['jshint', 'eslint'])
+  grunt.registerTask('lint', ['jshint'/*, eslint'*/])
 
   // ----------
   // Build task.
