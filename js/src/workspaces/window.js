@@ -174,6 +174,8 @@
       templateData.currentFocusClass = _this.iconClasses[_this.viewType];
       templateData.showFullScreen = _this.fullScreen;
       templateData.userButtons = _this.userButtons;
+      templateData.annoWinButton = _this.externalAnnotationWindowButton;
+
       _this.element = jQuery(this.template(templateData)).appendTo(_this.appendTo);
       this.element.find('.manifest-info .mirador-tooltip').each(function() {
         jQuery(this).qtip({
@@ -1045,9 +1047,11 @@
       '<div class="window">',
       '<div class="manifest-info">',
       '<div class="window-manifest-navigation">',
+      '{{#if annoWinButton}}', // XXX yale seong
       '<a href="javascript:;" class="mirador-btn mirador-icon-open-annowin mirador-tooltip" role="button" title="Open Annotation Window" aria-label="Open AnnotationWindow">', // XXX yale/seong
       '<i class="fa fa-plus fa-lg fa-fw"></i>',
       '</a>',
+      '{{/if}}',
       '{{#if userButtons}}',
       '{{windowuserbtns userButtons}}',
       '{{/if}}',
